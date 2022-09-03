@@ -1,0 +1,6 @@
+components:
+  form_elements: "front_end/widgets/form_elements.html"
+  input: "front_end/widgets/input.html"
+  textarea: "front_end/widgets/textarea.html"
+  select: "front_end/widgets/select.html"
+  switch: "front_end/widgets/switch.html"

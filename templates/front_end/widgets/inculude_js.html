@@ -1,0 +1,36 @@
+{% load static %}
+{% if date %}
+    <!-- Date ----->
+    <script src="{% static 'assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/js/datepicker.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datepicker.tr.min.js' %}"></script>
+    <!---Date END --->
+{% endif %}
+
+{% if select %}
+    <!-- Select2 ----->
+    <script src="{% static 'assets/vendors/select2/select2.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/tr.min.js"></script>
+    <script src="{% static 'assets/js/select2.js' %}"></script>
+    <!---Select2 END --->
+{% endif %}
+
+{% if table %}
+    <!-- Datetable ----->
+    <script src="{% static 'assets/vendors/datatables.net/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'assets/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/js/data-table.js' %}"></script>
+    <!---DateTable END --->
+{% endif %}
+{% if other %}
+    <!-- Other ----->
+    <script src="{% static 'assets/vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/inputmask/jquery.inputmask.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-maxlength.js' %}"></script>
+    <script src="{% static 'assets/js/inputmask.js' %}"></script>
+    <!---Other END --->
+{% endif %}
+
+
+
+

@@ -1,0 +1,14 @@
+{% load static %}
+<div class="form-check form-switch">
+    <input {% attrs id value %} type="checkbox" name="{{ name|default:id }}"
+                                class="{{ errors|yesno:"is-invalid," }}{{ class|add:" form-check-input" }}" {{ attrs }}
+                                {% if checked %}checked{% endif %} data-bs-toggle="tooltip" data-bs-placement="left"
+                                title="{{ label|default:id|title }}">
+    {% if errors %}
+        <div id="{{ id }}" class="invalid-tooltip">
+            {% for error in errors %}
+                <strong>{{ error|escape }}</strong>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

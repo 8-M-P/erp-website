@@ -1,0 +1,164 @@
+{% load static %}
+<nav class="bottom-navbar">
+    <div class="container">
+        <ul class="nav page-navigation">
+            <li class="nav-item">
+                <a class="nav-link user-select-none cursor-pointer">
+                    <i class="link-icon" data-feather="box"></i>
+                    <span class="menu-title">Cari İşlemler</span>
+                    <i class="link-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <ul class="submenu-item">
+                        <li class="category-heading">Hesaplar</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'current-info-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'current-info-list' %}">Listele</a>
+                        </li>
+                        <li class="category-heading">Gruplar</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'current-group-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'current-group-list' %}">Listele</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link user-select-none cursor-pointer">
+                    <i class="link-icon" data-feather="box"></i>
+                    <span class="menu-title">Ürün İşlemleri</span>
+                    <i class="link-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="submenu-item">
+                                <li class="category-heading">Ürünler</li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'product-create' %}">Yeni Ekle</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'product-list' %}">Listele</a>
+                                </li>
+                                <li class="category-heading">Kategoriler</li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'category-create' %}">Yeni Ekle</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'category-list' %}">Listele</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="submenu-item">
+                                <li class="category-heading">Markalar</li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'brand-create' %}">Yeni Ekle</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'brand-list' %}">Listele</a>
+                                </li>
+                                <li class="category-heading">Özellikler</li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'product-attr-create' %}">Yeni Ekle</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'product-attr-list' %}">Listele</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item mega-menu">
+                <a href="#" class="nav-link">
+                    <i class="link-icon" data-feather="book"></i>
+                    <span class="menu-title">Sample Pages</span>
+                    <i class="link-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <div class="col-group-wrapper row">
+                        <div class="col-group col-md-6">
+                            <p class="category-heading">Special Pages</p>
+                            <div class="submenu-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul>
+                                            <li class="nav-item"><a class="nav-link"
+                                                                    href="../../pages/general/blank-page.html">Blank
+                                                page</a></li>
+                                            <li class="nav-item"><a class="nav-link"
+                                                                    href="../../pages/general/faq.html">Faq</a>
+                                            </li>
+                                            <li class="nav-item"><a class="nav-link"
+                                                                    href="../../pages/general/invoice.html">Invoice</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul>
+                                            <li class="nav-item"><a class="nav-link"
+                                                                    href="../../pages/general/profile.html">Profile</a>
+                                            </li>
+                                            <li class="nav-item"><a class="nav-link"
+                                                                    href="../../pages/general/pricing.html">Pricing</a>
+                                            </li>
+                                            <li class="nav-item"><a class="nav-link"
+                                                                    href="../../pages/general/timeline.html">Timeline</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-group col-md-3">
+                            <p class="category-heading">Auth Pages</p>
+                            <ul class="submenu-item">
+                                <li class="nav-item"><a class="nav-link"
+                                                        href="../../pages/auth/login.html">Login</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link"
+                                                        href="../../pages/auth/register.html">Register</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-group col-md-3">
+                            <p class="category-heading">Error Pages</p>
+                            <ul class="submenu-item">
+                                <li class="nav-item"><a class="nav-link"
+                                                        href="../../pages/error/404.html">404</a></li>
+                                <li class="nav-item"><a class="nav-link"
+                                                        href="../../pages/error/500.html">500</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="#" target="_blank" class="nav-link">
+                    <i class="link-icon" data-feather="pie-chart"></i>
+                    <span class="menu-title">Analiz</span></a>
+            </li>
+            <li class="nav-item">
+                <a href="#" target="_blank" class="nav-link">
+                    <i class="link-icon" data-feather="hash"></i>
+                    <span class="menu-title">Üretim</span></a>
+            </li>
+            <li class="nav-item">
+                <a href="#" target="_blank" class="nav-link">
+                    <i class="link-icon" data-feather="hash"></i>
+                    <span class="menu-title">Depo</span></a>
+            </li>
+            <li class="nav-item">
+                <a href="#" target="_blank" class="nav-link">
+                    <i class="link-icon" data-feather="hash"></i>
+                    <span class="menu-title">Kasa</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>

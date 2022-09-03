@@ -1,0 +1,331 @@
+{% extends 'front_end/layout.html' %}
+{% load static %}
+{% block css %}
+    {% comment %}<!-- Datetable ----->
+    <link rel="stylesheet" href="{% static 'assets/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css' %}">
+    <!-- Datetable END----->
+    <!-- Select2 ----->
+    <link rel="stylesheet" href="{% static 'assets/vendors/select2/select2.min.css' %}">
+    <!-- Select2 END----->
+    <!-- Date ----->
+    <link rel="stylesheet" href="{% static 'assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css' %}">
+    <!-- Date END----->{% endcomment %}
+    {% include 'front_end/widgets/inculude_css.html' with select=True date=True table=True %}
+
+{% endblock css %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">{{ data }}</h6>
+                    <form class="forms-sample">
+                        <!--
+                            data-inputmask="'alias': 'ip/email/currency/datetime'"
+                            data-inputmask-alias="(+99) 9999-9999"
+                            data-inputmask-inputformat="dd/mm/yyyy HH:MM:ss"
+                            data-inputmask-placeholder="*"
+                        -->
+
+                        {% input id="email2" variant="email" label="Mail" value="e@mail.com" %}
+                        {% input id="currency2" variant="currency" label="Fiyat" value="19.12" %}
+                        {% input id="tel2" variant="tel" label="Tel" value="5325456677" %}
+                        {% input id="date2" variant="date" label="Tarih" value="22/01/2022" %}
+                        {% input id="other2" label="Other" maxlength="25" value="exmp" %}
+                        {% select id="test2" options=liste.items selected="test2" label="First Name" %}
+                        {% select id="test_multi2" options=liste.items selected="test2" label="First Name" multiple %}
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="email" placeholder="_@_._"
+                                   data-inputmask="'alias': 'email'" maxlength="50"/>
+                            <label for="email">E-posta</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="currency" placeholder="0.00"
+                                   data-inputmask="'alias': 'currency'" maxlength="12"/>
+                            <label for="currency">Fiyat</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="tel" type="tel" placeholder="*"
+                                   data-inputmask-regex="^\+?1?\d{9,15}$"
+                                   data-inputmask-alias="+999999999[999999]"/>
+                            <label for="tel">Tel</label>
+                        </div>
+                        <div class="input-group date datepicker p-0 mb-3">
+                            <span class="input-group-text input-group-addon"><i data-feather="calendar"></i></span>
+                            <div class="form-floating flex-fill">
+                                <input type="text" id="date" maxlength="10" class="form-control" placeholder="*">
+                                <label for="date">Tarih</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="select">Seçim</label>
+                            <select class="form-select" id="select" data-placeholder="Select">
+                                <option value="TX">Texas</option>
+                                <option value="NY">New York</option>
+                                <option value="FL">Florida</option>
+                                <option value="KN">Kansas</option>
+                                <option value="HW">Hawaii</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="multiselect">Multiple Seçim</label>
+                            <select class="form-select" id="multiselect" multiple="multiple">
+                                <option value="TX">Texas</option>
+                                <option value="WY">Wyoming</option>
+                                <option value="NY">New York</option>
+                                <option value="FL">Florida</option>
+                                <option value="KN">Kansas</option>
+                                <option value="HW">Hawaii</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary me-2">Submit</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="replaceMe" class="col">
+            <button class='btn' hx-get="/api/weight-units/"
+                    hx-target="#replaceMe"
+                    hx-swap="outerHTML">
+                Load More Agents... <img class="htmx-indicator" src="/img/bars.svg">
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Data Table</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>İsim</th>
+                                <th>Departman</th>
+                                <th>Ofis</th>
+                                <th>Yaş</th>
+                                <th>Tarih</th>
+                                <th>Maas</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Tiger Nixon</td>
+                                <td>System Architect</td>
+                                <td>Edinburgh</td>
+                                <td>61</td>
+                                <td>2011/04/25</td>
+                                <td>$320,800</td>
+                            </tr>
+                            <tr>
+                                <td>Garrett Winters</td>
+                                <td>Accountant</td>
+                                <td>Tokyo</td>
+                                <td>63</td>
+                                <td>2011/07/25</td>
+                                <td>$170,750</td>
+                            </tr>
+                            <tr>
+                                <td>Ashton Cox</td>
+                                <td>Junior Technical Author</td>
+                                <td>San Francisco</td>
+                                <td>66</td>
+                                <td>2009/01/12</td>
+                                <td>$86,000</td>
+                            </tr>
+                            <tr>
+                                <td>Cedric Kelly</td>
+                                <td>Senior Javascript Developer</td>
+                                <td>Edinburgh</td>
+                                <td>22</td>
+                                <td>2012/03/29</td>
+                                <td>$433,060</td>
+                            </tr>
+                            <tr>
+                                <td>Airi Satou</td>
+                                <td>Accountant</td>
+                                <td>Tokyo</td>
+                                <td>33</td>
+                                <td>2008/11/28</td>
+                                <td>$162,700</td>
+                            </tr>
+                            <tr>
+                                <td>Brielle Williamson</td>
+                                <td>Integration Specialist</td>
+                                <td>New York</td>
+                                <td>61</td>
+                                <td>2012/12/02</td>
+                                <td>$372,000</td>
+                            </tr>
+                            <tr>
+                                <td>Herrod Chandler</td>
+                                <td>Sales Assistant</td>
+                                <td>San Francisco</td>
+                                <td>59</td>
+                                <td>2012/08/06</td>
+                                <td>$137,500</td>
+                            </tr>
+                            <tr>
+                                <td>Rhona Davidson</td>
+                                <td>Integration Specialist</td>
+                                <td>Tokyo</td>
+                                <td>55</td>
+                                <td>2010/10/14</td>
+                                <td>$327,900</td>
+                            </tr>
+                            <tr>
+                                <td>Colleen Hurst</td>
+                                <td>Javascript Developer</td>
+                                <td>San Francisco</td>
+                                <td>39</td>
+                                <td>2009/09/15</td>
+                                <td>$205,500</td>
+                            </tr>
+                            <tr>
+                                <td>Sonya Frost</td>
+                                <td>Software Engineer</td>
+                                <td>Edinburgh</td>
+                                <td>23</td>
+                                <td>2008/12/13</td>
+                                <td>$103,600</td>
+                            </tr>
+                            <tr>
+                                <td>Jena Gaines</td>
+                                <td>Office Manager</td>
+                                <td>London</td>
+                                <td>30</td>
+                                <td>2008/12/19</td>
+                                <td>$90,560</td>
+                            </tr>
+                            <tr>
+                                <td>Quinn Flynn</td>
+                                <td>Support Lead</td>
+                                <td>Edinburgh</td>
+                                <td>22</td>
+                                <td>2013/03/03</td>
+                                <td>$342,000</td>
+                            </tr>
+                            <tr>
+                                <td>Charde Marshall</td>
+                                <td>Regional Director</td>
+                                <td>San Francisco</td>
+                                <td>36</td>
+                                <td>2008/10/16</td>
+                                <td>$470,600</td>
+                            </tr>
+                            <tr>
+                                <td>Haley Kennedy</td>
+                                <td>Senior Marketing Designer</td>
+                                <td>London</td>
+                                <td>43</td>
+                                <td>2012/12/18</td>
+                                <td>$313,500</td>
+                            </tr>
+                            <tr>
+                                <td>Tatyana Fitzpatrick</td>
+                                <td>Regional Director</td>
+                                <td>London</td>
+                                <td>19</td>
+                                <td>2010/03/17</td>
+                                <td>$385,750</td>
+                            </tr>
+                            <tr>
+                                <td>Michael Silva</td>
+                                <td>Marketing Designer</td>
+                                <td>London</td>
+                                <td>66</td>
+                                <td>2012/11/27</td>
+                                <td>$198,500</td>
+                            </tr>
+                            <tr>
+                                <td>Paul Byrd</td>
+                                <td>Chief Financial Officer (CFO)</td>
+                                <td>New York</td>
+                                <td>64</td>
+                                <td>2010/06/09</td>
+                                <td>$725,000</td>
+                            </tr>
+                            <tr>
+                                <td>Gloria Little</td>
+                                <td>Systems Administrator</td>
+                                <td>New York</td>
+                                <td>59</td>
+                                <td>2009/04/10</td>
+                                <td>$237,500</td>
+                            </tr>
+                            <tr>
+                                <td>Bradley Greer</td>
+                                <td>Software Engineer</td>
+                                <td>London</td>
+                                <td>41</td>
+                                <td>2012/10/13</td>
+                                <td>$132,000</td>
+                            </tr>
+                            <tr>
+                                <td>Dai Rios</td>
+                                <td>Personnel Lead</td>
+                                <td>Edinburgh</td>
+                                <td>35</td>
+                                <td>2012/09/26</td>
+                                <td>$217,500</td>
+                            </tr>
+                            <tr>
+                                <td>Jenette Caldwell</td>
+                                <td>Development Lead</td>
+                                <td>New York</td>
+                                <td>30</td>
+                                <td>2011/09/03</td>
+                                <td>$345,000</td>
+                            </tr>
+                            <tr>
+                                <td>Yuri Berry</td>
+                                <td>Chief Marketing Officer (CMO)</td>
+                                <td>New York</td>
+                                <td>40</td>
+                                <td>2009/06/25</td>
+                                <td>$675,000</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+{% block script %}
+    {% include 'front_end/widgets/inculude_js.html' with select=True date=True table=True %}
+
+    <script type="text/javascript" src="{% static 'assets/js/htmx.min.js' %}"></script>
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        })
+    </script>
+    <!-- Datetable ----->
+    {% comment %}<script src="{% static 'assets/vendors/datatables.net/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'assets/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/js/data-table.js' %}"></script>{% endcomment %}
+    <!---DateTable END --->
+    <!-- Date ----->
+    {% comment %}<script src="{% static 'assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/js/datepicker.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datepicker.tr.min.js' %}"></script>{% endcomment %}
+    <!---Date END --->
+    <!-- Select2 ----->
+    {% comment %}<script src="{% static 'assets/vendors/select2/select2.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/tr.min.js"></script>
+    <script src="{% static 'assets/js/select2.js' %}"></script>{% endcomment %}
+    <!---Select2 END --->
+    <!-- Other ----->
+    {% comment %}<script src="{% static 'assets/vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/inputmask/jquery.inputmask.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-maxlength.js' %}"></script>
+    <script src="{% static 'assets/js/inputmask.js' %}"></script>{% endcomment %}
+    <!---Other END --->
+
+{% endblock script %}

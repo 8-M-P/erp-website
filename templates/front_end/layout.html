@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'front_end/layout/head.html' %}
+    <!-- Plugin css for this page -->
+    {% block css %}{% endblock css %}
+    <!-- End plugin css for this page END-->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="{% static 'assets/css/demo4/style.css' %}">
+    <!-- End layout styles -->
+    <style>
+        .loader {
+            display: none;
+        }
+
+        .htmx-request.loader {
+            display: inline;
+            position: fixed;
+            z-index: 9999;
+            width: 200px;
+            height: 200px;
+            left: 50%;
+            top: 50%;
+            background-color: #0c1427;
+            padding: 50px;
+            transform: translate(-50%, -50%);
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        }
+
+        .htmx-request.loader div {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<!-- this is our loading spinner -->
+<div class="loader">
+    <div class="spinner-border text-white" role="status">
+        <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+</div>
+<!-- end of loading spinner -->
+<div class="main-wrapper">
+    {% include 'front_end/layout/header.html' %}
+    <div class="page-wrapper">
+        <div class="page-content">
+            <nav class="page-breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Forms</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Basic Elements</li>
+                </ol>
+            </nav>
+            {% block content %}{% endblock content %}
+        </div>
+        <footer class="footer border-top">
+            <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between py-3 small">
+                <p class="text-muted mb-1 mb-md-0">Copyright © 2021 <a href="https://www.nobleui.com" target="_blank">NobleUI</a>.
+                </p>
+                <p class="text-muted">Handcrafted With <i class="mb-1 text-primary ms-1 icon-sm"
+                                                          data-feather="heart"></i></p>
+            </div>
+        </footer>
+    </div>
+</div>
+{% include 'front_end/layout/footer.html' %}
+
+<!-- Plugin js for this page -->
+{% block htmxscript %}{% endblock htmxscript %}
+{% block script %}{% endblock script %}
+<!-- End plugin js for this page -->
+</body>
+</html>

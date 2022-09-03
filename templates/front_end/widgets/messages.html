@@ -1,0 +1,12 @@
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            new Noty({
+                type: '{{ message.tags }}',
+                layout: 'topRight',
+                text: '{{ message }}',
+                timeout: 5000,
+            }).show();
+        {% endfor %}
+    </script>
+{% endif %}

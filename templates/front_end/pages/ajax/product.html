@@ -1,0 +1,64 @@
+{% load static verbose_names %}
+<div class="row">
+    {% if table is not None %}
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-baseline mb-5">
+                <h6 class="card-title fs-4">{% get_model_verbose_name table.first %}</h6>
+                <a href="{% url 'product-create' %}" class="btn btn-outline-light">Yeni Ekle</a>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle table-striped">
+                    <thead class="table-light">
+                    <tr>
+                        <th data-orderable="false" class="fit"></th>
+                        <th>{% get_verbose_name table.first "name" %}</th>
+                        <th>{% get_verbose_name table.first "category" %}</th>
+                        <th>{% get_verbose_name table.first "sku" %}</th>
+                        <th>{% get_verbose_name table.first "brand" %}</th>
+                        <th>{% get_verbose_name table.first "price" %}</th>
+                        <th>{% get_verbose_name table.first "measurement_unit" %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row  in table %}
+                        <tr>
+                            <td>
+                                <button class="btn btn-light choose-product" type="button"
+                                        onclick="chooseProduct(this)"
+                                        data-product-id="{{ row.pk }}"
+                                        data-product-sku="{{ row.sku }}"
+                                        data-product-name="{{ row.name }}"
+                                        data-product-upc="{{ row.upc }}"
+                                        data-product-tax-rate="{{ row.tax_rate }}"
+                                        data-product-price="{{ row.price }}"
+                                        data-product-measurement-unit="{{ row.measurement_unit.symbol }}"
+                                >Seç
+                                </button>
+                            </td>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.category }}</td>
+                            <td>{{ row.sku }}</td>
+                            <td>{{ row.brand }}</td>
+                            <td>{{ row.price }}</td>
+                            <td>{{ row.measurement_unit }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-md-6 grid-margin stretch-card m-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <h6 class="card-title">Bilgi bulunmamaktadır, Lütfen yeni bilgi ekleyiniz...</h6>
+                        <a href="{% url 'product-create' %}" class="btn btn-outline-light">Yeni Ekle</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

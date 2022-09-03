@@ -1,0 +1,58 @@
+{% load static %}
+<div class="mb-4">
+    <div class="input-group p-0 has-validation {% if variant == "date" %}date datepicker{% endif %}">
+        {% if variant != "currency" %}
+            <span class="input-group-text  {% if variant == "date" %}input-group-addon{% endif %}">
+             {% if variant == "email" %}
+                 <span class="iconify" data-icon="ic:baseline-alternate-email"></span>
+             {% elif variant == "tel" %}
+                 <span class="iconify" data-icon="mdi:phone"></span>
+             {% elif variant == "date" %}
+                 <span class="iconify" data-icon="ic:twotone-calendar-month"></span>
+             {% else %}
+                 <span class="iconify" data-icon="{{ icon|default:"mdi:pencil" }}"></span>
+             {% endif %}
+            </span>
+        {% endif %}
+        <div class="form-floating flex-fill">
+            <input {% attrs id value %} name="{{ name|default:id }}" {{ attrs }} aria-describedby="{{ id|add:"_Help" }}"
+                                        class="form-control {{ errors|yesno:"is-invalid," }}{{ class }}"
+                    {{ required|yesno:"required," }}
+                    {% if variant == "email" %}
+                                        type="text" placeholder="_@_._" data-inputmask="'alias': 'email'"
+                                        maxlength="{{ maxlength|default:"50" }}"
+                    {% elif variant == "currency" %}
+                                        type="{{ type|default:"text" }}" placeholder="0"
+                                        data-inputmask="'alias': 'currency'"
+                                        maxlength="{{ maxlength|default:"12" }}"
+                    {% elif variant == "tel" %}
+                                        type="{{ type|default:"tel" }}" placeholder="*"
+                                        data-inputmask-regex="^\+?1?\d{9,15}$"
+                                        data-inputmask-alias="+999999999[999999]"
+                    {% elif variant == "date" %}
+                                        type="{{ type|default:"text" }}" placeholder="*"
+                                        maxlength="{{ maxlength|default:"10" }}"
+                    {% else %}
+                                        type="{{ type|default:"text" }}" placeholder="{{ placeholder|default:"*" }}"
+                                        maxlength="{{ maxlength|default:"10" }}"
+                    {% endif %}
+            />
+            <label for="{{ id }}">{{ label|default:id|title }}</label>
+            {% if errors %}
+                <div id="{{ id }}" class="invalid-tooltip">
+                    {% for error in errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        {% if variant == "currency" %}
+            <span class="input-group-text">
+                 <span class="iconify" data-icon="ic:baseline-currency-lira"></span>
+            </span>
+        {% endif %}
+    </div>
+    {% if help_text %}
+        <small id="{{ id }}_Help" class="form-text text-muted ms-4">{{ help_text }}</small>
+    {% endif %}
+</div>

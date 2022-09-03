@@ -1,0 +1,9 @@
+{% if variant == 'checkbox' %}
+    {% switch id=field.auto_id name=field.name label=field.label checked=field.initial errors=field.errors %}
+{% elif variant == 'select' %}
+    {% select id=field.auto_id name=field.name options=field.field.choices selected=field.initial label=field.label multiple=multiple required=field.field.required errors=field.errors %}
+{% elif variant == 'textarea' %}
+    {% textarea id=field.auto_id name=field.name label=field.label required=field.field.required errors=field.errors value=field.initial maxlength=field.field.max_length %}
+{% else %}
+    {% input id=field.auto_id name=field.name help_text=field.help_text variant=variant maxlength=field.field.max_length label=field.label required=field.field.required value=field.initial errors=field.errors %}
+{% endif %}
