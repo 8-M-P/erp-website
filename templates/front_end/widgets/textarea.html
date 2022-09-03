@@ -1,0 +1,26 @@
+{% load static %}
+<div class="mb-4">
+    <div class="input-group p-0 has-validation">
+    <span class="input-group-text">
+         <span class="iconify" data-icon="{{ icon|default:"" }}"></span>
+     </span>
+        <div class="form-floating flex-fill">
+            <textarea {% attrs id %} name="{{ name|default:id }}" {{ attrs }}
+                                     aria-describedby="{{ id|add:"_Help" }}"
+                                     class="form-control {{ errors|yesno:"is-invalid," }}{{ class }}"
+                    {{ required|yesno:"required," }} placeholder="{{ placeholder|default:"*" }}"
+                                     maxlength="{{ maxlength|default:"255" }}">{{ value|default:"" }}</textarea>
+            <label for="{{ id }}">{{ label|default:id|title }}</label>
+            {% if errors %}
+                <div id="{{ id }}" class="invalid-tooltip">
+                    {% for error in errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if help_text %}
+        <small id="{{ id }}_Help" class="form-text text-muted ms-4">{{ help_text }}</small>
+    {% endif %}
+</div>
