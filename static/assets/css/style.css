@@ -1,0 +1,43 @@
+/*Custom Css*/
+.select2-container--default .select2-selection--single, .select2-container--default .select2-selection--multiple {
+    padding-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.select2-container--default .select2-selection--single {
+    padding-top: 1.3rem;
+    padding-left: 0.1rem;
+}
+
+.select2-container--default .select2-selection--multiple {
+    padding-top: 1.5rem;
+    padding-left: 0.5rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 5px !important;
+    right: 45px !important;
+}
+
+.select2-selection__clear {
+    line-height: 1;
+    font-size: 1.5rem;
+}
+
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+.table td.fit,
+.table th.fit {
+    white-space: nowrap;
+    width: 1%;
+}
+
+.tab-content {
+    border-color: #172340 #172340;
+    border-width: 1px;
+    border-style: solid;
+    border-top: transparent;
+}
