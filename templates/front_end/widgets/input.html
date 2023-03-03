@@ -15,26 +15,31 @@
             </span>
         {% endif %}
         <div class="form-floating flex-fill">
-            <input {% attrs id value %} name="{{ name|default:id }}" {{ attrs }} aria-describedby="{{ id|add:"_Help" }}"
-                                        class="form-control {{ errors|yesno:"is-invalid," }}{{ class }}"
+            <input {% if variant == "date" %}{% attrs id %}value="{{ value|date:'m/d/Y' }}" {% else %}
+                       {% attrs id value %}{% endif %} name="{{ name|default:id }}" {{ attrs }}
+                   aria-describedby="{{ id|add:"_Help" }}"
+                   class="form-control {{ errors|yesno:"is-invalid," }}{{ class }}"
                     {{ required|yesno:"required," }}
                     {% if variant == "email" %}
-                                        type="text" placeholder="_@_._" data-inputmask="'alias': 'email'"
-                                        maxlength="{{ maxlength|default:"50" }}"
+                   type="text" placeholder="_@_._" data-inputmask="'alias': 'email'"
+                   maxlength="{{ maxlength|default:"50" }}"
                     {% elif variant == "currency" %}
-                                        type="{{ type|default:"text" }}" placeholder="0"
-                                        data-inputmask="'alias': 'currency'"
-                                        maxlength="{{ maxlength|default:"12" }}"
+                   type="{{ type|default:"text" }}" placeholder="0"
+                   data-inputmask="'alias': 'currency'"
+                   maxlength="{{ maxlength|default:"12" }}"
                     {% elif variant == "tel" %}
-                                        type="{{ type|default:"tel" }}" placeholder="*"
-                                        data-inputmask-regex="^\+?1?\d{9,15}$"
-                                        data-inputmask-alias="+999999999[999999]"
+                   type="{{ type|default:"tel" }}" placeholder="*"
+                   data-inputmask-regex="^\+?1?\d{10,13}$"
+                   data-inputmask-alias="9999999999[99][9]"
                     {% elif variant == "date" %}
-                                        type="{{ type|default:"text" }}" placeholder="*"
-                                        maxlength="{{ maxlength|default:"10" }}"
+                   type="{{ type|default:"text" }}" placeholder="*"
+                   maxlength="{{ maxlength|default:"10" }}"
+                    {% elif variant == "ratio" %}
+                   type="{{ type|default:"number" }}" placeholder="{{ placeholder|default:"*" }}"
+                   maxlength="3"
                     {% else %}
-                                        type="{{ type|default:"text" }}" placeholder="{{ placeholder|default:"*" }}"
-                                        maxlength="{{ maxlength|default:"10" }}"
+                   type="{{ type|default:"text" }}" placeholder="{{ placeholder|default:"*" }}"
+                   maxlength="{{ maxlength|default:"10" }}"
                     {% endif %}
             />
             <label for="{{ id }}">{{ label|default:id|title }}</label>

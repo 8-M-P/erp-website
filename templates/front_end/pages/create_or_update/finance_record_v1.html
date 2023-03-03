@@ -90,7 +90,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 table-responsive mb-7">
+                        <div class="col-12 table-responsive">
                             <table class="table table-striped table-bordered border-primary align-middle">
                                 <thead class="bg-light text-dark">
                                 <tr>
@@ -185,7 +185,7 @@
                             </table>
                         </div>
                         <hr>
-                        <div class="row justify-content-end mt-5">
+                        <div class="row justify-content-end">
                             <div class="col-4 px-3">
                                 <fieldset class="border p-2">
                                     <legend class="float-none w-auto p-2">Ödeme Durumu</legend>
@@ -256,103 +256,276 @@
 {% block script %}
     {% include 'front_end/widgets/inculude_js.html' with select=True date=True other=True %}
     <script>
+        fetch('{% url 'product-list-ajax' %}').then(function (response) {
+            return response.text();
+        }).then(function (html) {
+            document.getElementById("modalBody").innerHTML = html;
+        }).catch(function (err) {
+            // There was an error
+            console.warn('Something went wrong.', err);
+        });
+    </script>
+    <script>
+        class FaturaOzet {
+            constructor() {
+                if (FaturaOzet._instance) {
+                    return FaturaOzet._instance
+                }
+                FaturaOzet._instance = this;
+            }
+
+
+            calc() {
+                let islem_tutar = 0
+                let islem_tutar_data = "data-product-units-price-total"
+                let islem_tutar_id = "id_total"
+                let iskonto_tutar = 0
+                let iskonto_tutar_data = "data-product-discount-total"
+                let iskonto_tutar_id = "id_discount_sum"
+                let ara_toplam = 0
+                let ara_toplam_data = "data-product-sub-total"
+                let ara_toplam_id = "id_sub_total"
+                let kdv_tutar = 0
+                let kdv_tutar_data = "data-product-tax-total"
+                let kdv_tutar_id = "id_vat_total"
+                let genel_toplam = 0
+                let genel_toplam_data = "data-product-total-price"
+                const genel_toplam_id = "id_final_total"
+                let tableID = "recordContent"
+                let objs = {};
+                let tableRef = document.getElementById(tableID)
+                const tr = tableRef.querySelectorAll("tr")
+
+                tr.forEach(function (x, y) {
+                    const attributeNodeArray = [...x.attributes]
+                    objs[x.id] = attributeNodeArray.reduce((attrs, attribute) => {
+                        attrs[attribute.name] = attribute.value
+                        return attrs
+                    }, {});
+                })
+
+                Object.keys(objs).forEach(key => {
+                    islem_tutar += parseFloat(objs[key][islem_tutar_data].replaceAll(",", ""))
+                    iskonto_tutar += parseFloat(objs[key][iskonto_tutar_data].replaceAll(",", ""))
+                    ara_toplam += parseFloat(objs[key][ara_toplam_data].replaceAll(",", ""))
+                    kdv_tutar += parseFloat(objs[key][kdv_tutar_data].replaceAll(",", ""))
+                    genel_toplam += parseFloat(objs[key][genel_toplam_data].replaceAll(",", ""))
+                })
+                document.getElementById(islem_tutar_id).value = islem_tutar
+                document.getElementById(iskonto_tutar_id).value = iskonto_tutar
+                document.getElementById(ara_toplam_id).value = ara_toplam
+                document.getElementById(kdv_tutar_id).value = kdv_tutar
+                document.getElementById(genel_toplam_id).value = genel_toplam
+
+            }
+        }
+
+        let bill = new FaturaOzet()
+        let formatCurrency = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+        });
+
         function hideFunc(modalName) {
             const q_model = document.querySelector(modalName);
             const modal = bootstrap.Modal.getInstance(q_model);
             modal.hide();
         }
 
-        function trIDSwoop(id, tableName = "recordContent") {
-            const table = document.getElementById(tableName);
-            const arr = Array.from(table.rows).map(x => x.id);
-            if (typeof id !== "undefined") {
-                return arr.includes(id)
-            }
-            return false
-        }
-
-        function trSwoop(tableName = "recordContent") {
-            const table = document.getElementById(tableName);
-            const arr = Array.from(table.rows);
-            console.log(arr)
-            // loop through each attribute
-            for (let attribute of arr) {
-                console.log(attribute.name); // attribute name
-                console.log(attribute.value); // attribute value
-            }
-        }
-
-        fetch('{% url 'product-list-ajax' %}').then(function (response) {
-            return response.text();
-        }).then(function (html) {
-            document.getElementById("modalBody").innerHTML = html;
-        }).catch(function (err) {
-            console.warn('Something went wrong.', err);
-        });
-
-
         function addRow(attr) {
-            function addCell(row, name, content) {
+            const tableID = "recordContent"
+            // Get a reference to the table
+            let tableRef = document.getElementById(tableID);
+
+            // Insert a row at the end of the table
+            let newRow = tableRef.insertRow(-1);
+            newRow.setAttribute("id", "content-" + attr.id)
+
+            let price = parseFloat(attr.price.replaceAll(',', '.').replaceAll(' ', ''))
+            let discount = 0
+            let unit = 1
+            let islem_tutar = price * unit
+            let iskonto_tutar = islem_tutar * discount / 100
+            let ara_toplam = islem_tutar * (100 - discount) / 100
+            let total_price = ara_toplam * (1 + (Number(attr.tax_rate) / 100))
+            let kdv_toplam = (total_price - (total_price / (1 + (Number(attr.tax_rate) / 100))))
+            newRow.setAttribute("data-product-units-price-total", islem_tutar.toString());
+            newRow.setAttribute("data-product-discount-total", iskonto_tutar.toString());
+            newRow.setAttribute("data-product-sub-total", ara_toplam.toString());
+            newRow.setAttribute("data-product-tax-total", kdv_toplam.toString());
+            newRow.setAttribute("data-product-total-price", total_price.toString());
+
+            function addCell(row, name, content, type = "") {
                 let newCell = row.insertCell()
-                row.setAttribute("data-" + name, content)
+                newCell.setAttribute("class", name)
+                const input = document.createElement("input")
+                input.setAttribute("type", "hidden")
+                input.setAttribute("name", name)
+                input.setAttribute("value", content)
+                newCell.appendChild(input)
+                row.setAttribute(name, content)
+                // Append a text node to the cell
+                if (type === "currency") {
+                    content = formatCurrency.format(content)
+                }
                 let newText = document.createTextNode(content)
                 newCell.appendChild(newText)
             }
 
-            let tableID = "recordContent"
-            let tableRef = document.getElementById(tableID)
-            let tr = tableRef.querySelectorAll("tr")
+            let btn = document.createElement("button");
+            btn.innerHTML = "Düzenle";
+            btn.type = "Button"
+            btn.className = "btn btn-primary btn-sm";
+            btn.setAttribute("data-bs-target", "#productModal")
+            btn.setAttribute("data-bs-toggle", "modal")
 
-            if (trIDSwoop("content-" + attr.hidden.pk)) {
-                new Noty({
-                    type: 'warning',
-                    layout: 'topRight',
-                    text: 'Bu ürün listede mevcut!',
-                    timeout: 5000,
-                }).show();
-            } else {
-                let newRow = tableRef.insertRow(-1);
-                newRow.setAttribute("id", "content-" + attr.hidden.pk)
-                let newCell = newRow.insertCell();
-                for (const [key, value] of Object.entries(attr.hidden)) {
-                    const input = document.createElement("input")
-                    input.setAttribute("type", "hidden")
-                    input.setAttribute("name", "data-" + key)
-                    input.setAttribute("value", value.toString())
-                    newCell.appendChild(input)
-                }
-                for (const [key, value] of Object.entries(attr.public)) {
-                    addCell(newRow, key, value);
-                }
-            }
+            let btn2 = document.createElement("button");
+            btn2.innerHTML = "Sil";
+            btn2.type = "Button"
+            btn2.className = "btn btn-danger btn-sm";
+            btn2.setAttribute("data-bs-target", "#deleteModal")
+            btn2.setAttribute("data-bs-id", attr.id)
+            btn2.setAttribute("data-bs-name", attr.name)
+            btn2.setAttribute("data-bs-toggle", "modal")
+            btn2.setAttribute("data-bs-tr-id", "content-" + attr.id)
+
+            const input = document.createElement("input")
+            input.setAttribute("type", "hidden")
+            input.setAttribute("name", "data-product-id")
+            input.setAttribute("value", attr.id)
+            let newCell = newRow.insertCell();
+            newCell.appendChild(input)
+            newCell.appendChild(btn);
+            newCell.appendChild(btn2);
+
+            //console.log(parseFloat(attr.price.replaceAll(',', '.').replaceAll(' ', '')))
+            //console.log(formatCurrency.format(parseFloat(attr.price.replaceAll(',', '.').replaceAll(' ', ''))))
+
+            addCell(newRow, "data-product-sku", attr.sku)
+            addCell(newRow, "data-product-name", attr.name)
+            addCell(newRow, "data-product-measurement-unit", attr.measurement_unit)
+            addCell(newRow, "data-product-tax-rate", attr.tax_rate)
+            addCell(newRow, "data-product-discount", "0")
+            addCell(newRow, "data-product-unit", "1")
+            addCell(newRow, "data-product-price-by-unit", price, "currency")
+            addCell(newRow, "data-product-total-price", price * (1 + (Number(attr.tax_rate) / 100)), "currency")
         }
 
         function chooseProduct(product) {
-            let token = document.getElementsByName("csrfmiddlewaretoken")[0].value
-            product = JSON.parse(product.dataset.product)
-            trSwoop()
-            console.log(product)
-            // swoop tamam düzenleyerek gonderme var tablo iceiriğini
-            fetch('{% url 'product-choose' %}', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': token
-                },
-                body: JSON.stringify(product)
-            }).then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                data['products_bills'].forEach(x => addRow(x))
-                hideFunc("#productsModal")
-            }).catch(function (err) {
-                console.warn('Something went wrong.', err);
-            });
+            const attr = {
+                id: product.getAttribute("data-product-id"),
+                sku: product.getAttribute("data-product-sku"),
+                name: product.getAttribute("data-product-name"),
+                upc: product.getAttribute("data-product-upc"),
+                tax_rate: product.getAttribute("data-product-tax-rate"),
+                price: product.getAttribute("data-product-price"),
+                measurement_unit: product.getAttribute("data-product-measurement-unit"),
+            }
+            let tableID = "recordContent"
+            let tr_ids = [];
+            let tableRef = document.getElementById(tableID)
+            let tr = tableRef.querySelectorAll("tr")
+            if (tr.length > 0) {
+                tr.forEach(x => tr_ids.push(x.id))
+                if (tr_ids.includes("content-" + attr.id)) {
+                    new Noty({
+                        type: 'warning',
+                        layout: 'topRight',
+                        text: 'Bu ürün listede mevcut!',
+                        timeout: 5000,
+                    }).show();
+                } else {
+                    addRow(attr);
+                    bill.calc()
+                }
+            } else {
+                tr_ids.push("content-" + attr.id)
+                addRow(attr);
+                bill.calc()
+            }
+
+            hideFunc("#productsModal")
         }
-    </script>
-    <script>
-        // Delete
+
+
+        const productModal = document.getElementById('productModal');
+
+        productModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const tr = button.parentElement.parentElement;
+            const attributeNodeArray = [...tr.attributes];
+            const attrs = attributeNodeArray.reduce((attrs, attribute) => {
+                attrs[attribute.name] = attribute.value;
+                return attrs;
+            }, {});
+            const contentPK = productModal.querySelector('#contentPK');
+            contentPK.value = attrs['id'];
+            const tax_rate = productModal.querySelector('#tax_rate');
+            tax_rate.value = attrs['data-product-tax-rate'];
+            const discount = productModal.querySelector('#discount');
+            discount.value = attrs['data-product-discount'];
+            const unit = productModal.querySelector('#unit');
+            unit.value = attrs['data-product-unit'];
+            const price_by_unit = productModal.querySelector('#price_by_unit');
+            price_by_unit.value = attrs['data-product-price-by-unit'];
+        })
+
+        productModal.addEventListener('hide.bs.modal', function (event) {
+            const contentPK = productModal.querySelector('#contentPK').value;
+            let trRef = document.getElementById(contentPK)
+
+
+            const discount = productModal.querySelector('#discount').value;
+            trRef.setAttribute("data-product-discount", discount);
+            trRef.querySelector('.data-product-discount').innerHTML = discount;
+            let discount_input = document.createElement("input")
+            discount_input.setAttribute("type", "hidden")
+            discount_input.setAttribute("name", "data-product-discount")
+            discount_input.setAttribute("value", discount)
+            trRef.querySelector('.data-product-discount').appendChild(discount_input);
+
+            const unit = productModal.querySelector('#unit').value;
+            trRef.setAttribute("data-product-unit", unit);
+            trRef.querySelector('.data-product-unit').innerHTML = unit;
+            let unit_input = document.createElement("input")
+            unit_input.setAttribute("type", "hidden")
+            unit_input.setAttribute("name", "data-product-unit")
+            unit_input.setAttribute("value", unit)
+            trRef.querySelector('.data-product-unit').appendChild(unit_input);
+
+            let price_by_unit = productModal.querySelector('#price_by_unit').value;
+            price_by_unit = price_by_unit.replaceAll(",", "")
+            console.log(price_by_unit + " / " + typeof (price_by_unit))
+            trRef.setAttribute("data-product-price-by-unit", price_by_unit);
+            trRef.querySelector('.data-product-price-by-unit').innerHTML = formatCurrency.format(price_by_unit);
+            let price_by_unit_input = document.createElement("input")
+            price_by_unit_input.setAttribute("type", "hidden")
+            price_by_unit_input.setAttribute("name", "data-product-price-by-unit")
+            price_by_unit_input.setAttribute("value", price_by_unit)
+            trRef.querySelector('.data-product-price-by-unit').appendChild(price_by_unit_input);
+
+            let tax_rate = Number(productModal.querySelector('#tax_rate').value)
+            let islem_tutar = price_by_unit * Number(unit)
+            let iskonto_tutar = islem_tutar * discount / 100
+            let ara_toplam = islem_tutar * (100 - discount) / 100
+            let total_price = ara_toplam * (1 + (tax_rate / 100))
+            let kdv_toplam = (total_price - (total_price / (1 + (tax_rate / 100))))
+            //(Net Tutar) x [1 + (Vergi Oranı/100)] KDV'li Tutar
+            //(Brüt Tutar) / [1 + (Vergi Oranı/100)] KDV'siz Tutar
+            trRef.setAttribute("data-product-units-price-total", islem_tutar.toString());
+            trRef.setAttribute("data-product-discount-total", iskonto_tutar.toString());
+            trRef.setAttribute("data-product-sub-total", ara_toplam.toString());
+            trRef.setAttribute("data-product-tax-total", kdv_toplam.toString());
+            trRef.setAttribute("data-product-total-price", total_price.toString());
+            trRef.querySelector('.data-product-total-price').innerHTML = formatCurrency.format(total_price);
+            let total_price_input = document.createElement("input")
+            total_price_input.setAttribute("type", "hidden")
+            total_price_input.setAttribute("name", "data-product-total-price")
+            total_price_input.setAttribute("value", total_price.toString())
+            trRef.querySelector('.data-product-total-price').appendChild(total_price_input);
+            bill.calc()
+        })
+
         let deleteModal = document.getElementById('deleteModal');
         deleteModal.addEventListener('show.bs.modal', function (event) {
             // Button that triggered the modal
@@ -370,5 +543,24 @@
                 deleteBtn.setAttribute("data-bs-db", "1")
             }
         })
+
+        function deleteRow(RowID) {
+            const element = document.getElementById(RowID);
+            element.remove();
+        }
+
+        let modalDeleteButton = document.getElementById("deleteProductButton")
+        modalDeleteButton.addEventListener("click", function (event) {
+            let button = event.target
+            let trID = button.getAttribute('data-bs-tr-id')
+            if (button.hasAttribute('data-bs-db')) {
+                // TODO: DB delete and price update
+                deleteRow(trID)
+            } else {
+                deleteRow(trID)
+            }
+            hideFunc('#deleteModal')
+            bill.calc()
+        });
     </script>
 {% endblock script %}

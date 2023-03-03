@@ -34,11 +34,22 @@ class CurrentGroupAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ["name"]}
 
 
+class FinanceRecordAdmin(admin.ModelAdmin):
+    list_display = (
+        'current', 'transaction_date', 'transaction_type', 'payment_type', 'total', 'discount_sum', 'sub_total',
+        'vat_total', 'final_total', 'amount_paid')
+
+
+class FinanceRecordContentAdmin(admin.ModelAdmin):
+    list_display = ('finance', 'product', 'discount_rate', 'quantity', 'unit_price')
+
+
 admin.site.register(User, UserAdminConfig)
 admin.site.register(CurrencyUnits)
 admin.site.register(CurrentGroup, CurrentGroupAdmin)
 admin.site.register(CurrentInformation)
+admin.site.register(BankNames)
 admin.site.register(CurrentBankInformation)
 admin.site.register(Media)
-admin.site.register(FinanceRecord)
-admin.site.register(FinanceRecordContent)
+admin.site.register(FinanceRecord, FinanceRecordAdmin)
+admin.site.register(FinanceRecordContent, FinanceRecordContentAdmin)

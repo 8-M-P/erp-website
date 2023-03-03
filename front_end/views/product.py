@@ -7,8 +7,7 @@ from front_end.utils.crud import crud, crud_list, crud_delete
 
 
 def product(request, pk=None):
-    return crud(request, 'front_end/pages/create_or_update/product.html', Product,
-                ProductForm, pk)
+    return crud(request, 'front_end/pages/create_or_update/product.html', Product, ProductForm, pk)
 
 
 def product_list(request):

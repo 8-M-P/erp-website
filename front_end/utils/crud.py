@@ -4,10 +4,11 @@ from django.http import Http404, QueryDict, HttpResponse
 from django.shortcuts import render, redirect
 
 
-def crud(request, template, model, form_class, pk=None, attr=None):
+def crud(request, template, model, form_class, pk=None, attr=None, return_bool=False):
     """
     Create, Update and Delete Function
      Allow Methods: ['GET', 'PUT', 'POST', 'DELETE']
+    :param return_bool: If True return Boolen result instead of template
     :param attr:
     :param request:
     :param template: Template file path exp: "app_name/template_name.html"
@@ -16,6 +17,10 @@ def crud(request, template, model, form_class, pk=None, attr=None):
     :param pk: Not Requred
     :return:
     """
+    if request.method == "POST":
+        post = request.POST
+    else:
+        post = False
     data = QueryDict(request.body)
     if pk is not None:
         # Update
@@ -38,9 +43,14 @@ def crud(request, template, model, form_class, pk=None, attr=None):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Güncelleme başarılı.')
+                if return_bool:
+                    return True
                 return redirect('result')
             else:
                 messages.warning(request, 'Girilen bilgileri kontol ediniz.')
+                print(form.errors)
+                form = form_class(data=data or None, initial=data.dict() or None)
+
         elif request.method == "DELETE":
             if table.delete():
                 messages.success(request, 'Silme başarılı.')
@@ -51,16 +61,16 @@ def crud(request, template, model, form_class, pk=None, attr=None):
         else:
             form = form_class(instance=table)
     else:
+        form = form_class(data=data or None, initial=data.dict() or None)
         if request.method == "POST":
-            form = form_class(data)
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Ekleme başarılı.')
+                if return_bool:
+                    return True
                 return redirect('result')
             else:
                 messages.warning(request, 'Girilen bilgileri kontol ediniz.')
-        else:
-            form = form_class()
 
     return render(request, template, {'form': form, 'pk': pk})
 
@@ -81,8 +91,8 @@ def crud_delete(request, model, pk):
         raise Http404("Does not exist")
 
 
-def crud_list(request, template, model):
+def crud_list(request, template, model, content=None):
     table = model.objects.all()
     if table.exists() is False:
         table = None
-    return render(request, template, {'table': table})
+    return render(request, template, {'table': table, 'content': content})

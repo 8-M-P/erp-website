@@ -18,9 +18,10 @@
                                 <thead>
                                 <tr>
                                     <th>{% get_verbose_name table.first "current_information" %}</th>
-                                    <th>{% get_verbose_name table.first "bank_name" %}</th>
+                                    <th>{% get_verbose_name table.first "bank" %}</th>
                                     <th>{% get_verbose_name table.first "bank_branch_no" %}</th>
                                     <th>{% get_verbose_name table.first "account_no" %}</th>
+                                    <th>{% get_verbose_name table.first "iban" %}</th>
                                     <th>{% get_verbose_name table.first "account_title" %}</th>
                                     <th>{% get_verbose_name table.first "currency" %}</th>
                                     <th data-orderable="false" class="fit"></th>
@@ -30,9 +31,10 @@
                                 {% for row  in table %}
                                     <tr>
                                         <td>{{ row.current_information }}</td>
-                                        <td>{{ row.bank_name }}</td>
+                                        <td>{{ row.bank }}</td>
                                         <td>{{ row.bank_branch_no }}</td>
                                         <td>{{ row.account_no }}</td>
+                                        <td>{{ row.iban }}</td>
                                         <td>{{ row.account_title }}</td>
                                         <td>{{ row.currency }}</td>
                                         <td>

@@ -7,7 +7,8 @@
         <select {% attrs id multiple %} name="{{ name|default:id }}"
                                         class="{{ errors|yesno:"is-invalid," }}{{ class|add:" form-select" }}"
                                         data-allow-clear="{{ required|yesno:"false,true" }}"
-                                        data-placeholder="{{ placeholder|default:"****"|title }}" {{ attrs }}>
+                                        data-placeholder="{{ placeholder|default:"****"|title }}"
+                {{ required|yesno:"required," }} {{ attrs }}>
             <option></option>
             {% if options %}
                 {% for key, value in options %}
@@ -20,10 +21,15 @@
                     {% else %}
                         {% if multiple %}
                             <option value="{{ key }}"
-                                    {% if selected %}{% if selected|isselected:key %}selected
-                                    {% endif %}{% endif %}>{{ value }}</option>
+                                    {% if selected %}
+                                    {% if selected|isselected:key %}selected{% endif %}
+                                    {% endif %}>{{ value }}</option>
                         {% else %}
-                            <option value="{{ key }}" {% if selected == key %}selected{% endif %}>{{ value }}</option>
+                            <option
+                                    {% if selected is not None %}
+                                        {% if selected|isequel:key %}selected{% endif %}
+                                    {% endif %}
+                                        value="{{ key }}">{{ value }}</option>
                         {% endif %}
                     {% endif %}
                 {% endfor %}

@@ -1,11 +1,13 @@
 from django.urls import path
 
+from front_end.views.finance_record import testcontent, product_choose
 from front_end.views.views import *
 
 urlpatterns = [
     path('', current_group_list, name='home'),
     path('result', result, name='result'),
-
+    path('test', testcontent),
+    path('product-choose', product_choose, name='product-choose'),
 ]
 
 # Current Group
@@ -38,6 +40,12 @@ urlpatterns += [
     path('finance-record/create/', finance_record, name='finance-record-create'),
     path('finance-record/<int:pk>/', finance_record, name='finance-record-update'),
     path('finance-record/<int:pk>/delete/', finance_record_delete, name='finance-record-delete'),
+]
+
+# Finance Record Content
+urlpatterns += [
+    path('finance-record-content/choose/', finance_record_content_choose, name='finance-record-content-choose'),
+    path('finance-record-content/create/', finance_record, name='finance-record-content-create'),
 ]
 
 # Product

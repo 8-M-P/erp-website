@@ -19,10 +19,11 @@
                             <h6 class="card-title">{{ pk|yesno:'Düzenle,Ekleme' }}</h6>
                         </div>
                         {% form_elements variant="select" field=form.current_information %}
-                        {% form_elements field=form.bank_name %}
+                        {% form_elements variant="select" field=form.bank %}
                         {% form_elements field=form.bank_branch_no %}
                         {% form_elements field=form.account_no %}
                         {% form_elements field=form.account_title %}
+                        {% form_elements field=form.iban %}
                         {% form_elements variant="select" field=form.currency %}
                         <button class="btn btn-primary me-2">{{ pk|yesno:"Güncelle,Ekle" }}</button>
                         {% if pk %}

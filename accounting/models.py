@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -143,10 +143,10 @@ class CurrentInformation(models.Model):
                               help_text="Şirket vergi numarası.")
     about = models.TextField(max_length=500, blank=True, verbose_name="Kısa Bilgisi",
                              help_text="Şirket hakkında kısa bilgi.")
-    purchase_discount = models.IntegerField(blank=True, null=True, verbose_name="Vergi Numarası",
-                                            help_text="Şirket vergi numarası.")
-    sale_discount = models.IntegerField(blank=True, null=True, verbose_name="Vergi Numarası",
-                                        help_text="Şirket vergi numarası.")
+    purchase_discount = models.IntegerField(blank=True, null=True, verbose_name="Alış İskontosu",
+                                            help_text="Alım da uygulanan iskonto oranı.")
+    sale_discount = models.IntegerField(blank=True, null=True, verbose_name="Satış İskontosu",
+                                        help_text="Satış da uygulanan iskonto oranı.")
 
     invoice_title = models.CharField(max_length=50, blank=True, verbose_name="Fatura Ünvanı",
                                      help_text="Ticari sicil adı.")
@@ -174,19 +174,37 @@ class CurrentInformation(models.Model):
         return self.current_name
 
 
+class BankNames(models.Model):
+    bank_name = models.CharField(max_length=255, verbose_name="Banka Adı", help_text="Banka ünvanı.")
+
+    class Meta:
+        verbose_name = "Banka Adı"
+        verbose_name_plural = "Banka İsimleri"
+
+    def __str__(self):
+        return self.bank_name
+
+
 class CurrentBankInformation(models.Model):
     current_information = models.ForeignKey(CurrentInformation, on_delete=models.CASCADE,
                                             verbose_name="Hesap Bilgileri")
-    bank_name = models.CharField(max_length=50, verbose_name="Banka Adı", help_text="Banka ünvanı.")
-    bank_branch_no = models.CharField(max_length=50, verbose_name="Şube Numarası", help_text="Banka şube numarası.")
-    account_no = models.CharField(max_length=50, verbose_name="Hesap numarası", help_text="Hesap numarası.")
+    bank = models.ForeignKey(BankNames, on_delete=models.CASCADE, verbose_name="Banka")
+    bank_branch_no = models.CharField(max_length=50, validators=[MinLengthValidator(4)], verbose_name="Şube Numarası",
+                                      help_text="Banka şube numarası.")
+    account_no = models.CharField(max_length=16, verbose_name="Hesap numarası", help_text="Hesap numarası.")
     account_title = models.CharField(max_length=50, verbose_name="Hesap Adı", help_text="Hesap sahibi ünvanı.")
+    iban = models.CharField(blank=True, validators=[MinLengthValidator(26)], max_length=34,
+                            verbose_name="İban Numarası",
+                            help_text="İban numarası ülke kodu ile birlikte (Minimum 26 - Maksimum 34 Hane).")
     currency = models.ForeignKey(CurrencyUnits, on_delete=models.PROTECT, verbose_name="Para Birimi",
                                  help_text="Hesap para birimi.")
 
     class Meta:
         verbose_name = "Banka Bilgisi"
         verbose_name_plural = "Banka Bilgileri"
+
+    def __str__(self):
+        return self.current_information.current_name
 
 
 class Media(models.Model):
@@ -240,22 +258,23 @@ class FinanceRecord(models.Model):
     payment_type = models.IntegerField(choices=PAYMENT_TYPE, default=1, verbose_name="Ödeme Tipi")
     document_no = models.CharField(max_length=50, blank=True, verbose_name="Belge No")
     desc = models.TextField(blank=True, verbose_name="Açıklama")
-    invoice_no = models.CharField(max_length=50, verbose_name="Fatura No")
+    invoice_no = models.CharField(max_length=50, blank=True, verbose_name="Fatura No")
     invoice_date = models.DateField(default=now, blank=True, null=True, verbose_name="Fatura Tarihi")
     invoice_type = models.BooleanField(choices=INVOICE_TYPE, default=False, verbose_name="Fatura Tipi")
-    waybill_no = models.CharField(max_length=50, verbose_name="İrsaliye No")
+    waybill_no = models.CharField(max_length=50, blank=True, verbose_name="İrsaliye No")
     waybill_date = models.DateField(default=now, blank=True, null=True, verbose_name="İrsaliye Tarihi")
     dispatch_date = models.DateField(default=now, blank=True, null=True, verbose_name="Sevk Tarihi")
-    total = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2,
+    total = models.DecimalField(default=0, max_digits=9, decimal_places=2,
                                 verbose_name="İşlem Toplam Turaı", help_text="Fatura birimleri toplam turarı.")
-    discount_sum = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2,
+    discount_sum = models.DecimalField(default=0, blank=True, null=True, max_digits=9, decimal_places=2,
                                        verbose_name="İskonto Tutarı")
-    sub_total = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2, verbose_name="Ara Toplam",
+    sub_total = models.DecimalField(default=0, max_digits=9, decimal_places=2, verbose_name="Ara Toplam",
                                     help_text="İskonto uygulanmış tutar.")
-    vat_total = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2, verbose_name="KDV Tutarı")
-    final_total = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2,
+    vat_total = models.DecimalField(default=0, max_digits=9, blank=True, null=True, decimal_places=2,
+                                    verbose_name="KDV Tutarı")
+    final_total = models.DecimalField(default=0, max_digits=9, decimal_places=2,
                                       verbose_name="Genel Toplam", help_text="Fatura toplam tutarı.")
-    amount_paid = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2,
+    amount_paid = models.DecimalField(default=0, max_digits=9, blank=True, null=True, decimal_places=2,
                                       verbose_name="Ödenen Miktar", help_text="Faturanın kalan miktar.")
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
@@ -264,9 +283,12 @@ class FinanceRecord(models.Model):
         verbose_name = "Finanslar Kayıt"
         verbose_name_plural = "Finanslar Kayıtlar"
 
+    def __str__(self):
+        return self.current.current_name
+
 
 class FinanceRecordContent(models.Model):
-    finance = models.ForeignKey(FinanceRecord, on_delete=models.CASCADE, verbose_name="Cari Hesap")
+    finance = models.ForeignKey(FinanceRecord, on_delete=models.CASCADE, verbose_name="Finansal Kayıt")
     product = models.ForeignKey(core.models.Product, on_delete=models.PROTECT, verbose_name="Ürün")
     discount_rate = models.DecimalField(default=0, blank=True, max_digits=3, decimal_places=1,
                                         verbose_name="İskonto Oranı")
@@ -276,7 +298,8 @@ class FinanceRecordContent(models.Model):
                                      verbose_name="Birim Fiyatı")
 
     def tax_sum(self):
-        return (self.product.tax_rate / 100 * (self.discount_rate / 100 * self.unit_price)) * self.quantity
+        return (int(self.product.tax_rate) / 100 * (
+                float(self.discount_rate) / 100 * float(self.unit_price))) * self.quantity
 
     def discount_sum(self):
         return (self.discount_rate / 100 * self.unit_price) * self.quantity
@@ -287,3 +310,6 @@ class FinanceRecordContent(models.Model):
     class Meta:
         verbose_name = "Finanslar Kayıt İçeriği"
         verbose_name_plural = "Finanslar Kayıt İçerikleri"
+
+    def __str__(self):
+        return self.product.name + " / " + self.finance.current.current_name
