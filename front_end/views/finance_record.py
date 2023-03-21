@@ -4,6 +4,7 @@ from front_end.forms import FinanceRecordForm
 from front_end.utils.crud import crud, crud_list, crud_delete
 
 import json
+from datetime import datetime
 from django.contrib import messages
 from django.http import Http404, HttpResponseBadRequest, QueryDict, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -23,7 +24,6 @@ def bill_calc(products=None):
     vat_total = (final_total - (final_total / (1 + tax_rate / 100))))
     """
     products = json.loads(products)
-    print(products)
     product_bills = []
 
     def product_bill_calc(product):
@@ -35,11 +35,10 @@ def bill_calc(products=None):
         product_bill = {
             'hidden': {
                 'pk': product.get('pk'),
-                'discount_sum': round(discount_sum),
-                'sub_total': round(sub_total),
-                'vat_total': round(vat_total),
-                'total': round(total),
-                'upc': product.get('upc'),
+                'discount_sum': round(discount_sum, 2),
+                'sub_total': round(sub_total, 2),
+                'vat_total': round(vat_total, 2),
+                'total': round(total, 2),
             },
             'public': {
                 'sku': product.get('sku'),
@@ -49,7 +48,7 @@ def bill_calc(products=None):
                 'discount_rate': product.get('discount_rate'),
                 'quantity': product.get('quantity'),
                 'unit_price': product.get('unit_price'),
-                'final_total': round(final_total),
+                'final_total': round(final_total, 2),
             }
         }
         product_bills.append(product_bill)
@@ -70,116 +69,70 @@ def bill_calc(products=None):
     }
     for bill in product_bills:
         bill_result = {
-            'total': bill_result.get('total') + round(bill.get('hidden').get('total')),
-            'discount_sum': bill_result.get('total') + round(bill.get('hidden').get('discount_sum')),
-            'sub_total': bill_result.get('total') + round(bill.get('hidden').get('sub_total')),
-            'vat_total': bill_result.get('total') + round(bill.get('hidden').get('vat_total')),
-            'final_total': bill_result.get('total') + round(bill.get('public').get('final_total')),
+            'total': round(bill_result.get('total') + round(bill.get('hidden').get('total'), 2), 2),
+            'discount_sum': round(bill_result.get('discount_sum') + round(bill.get('hidden').get('discount_sum'), 2),
+                                  2),
+            'sub_total': round(bill_result.get('sub_total') + round(bill.get('hidden').get('sub_total'), 2), 2),
+            'vat_total': round(bill_result.get('vat_total') + round(bill.get('hidden').get('vat_total'), 2), 2),
+            'final_total': round(bill_result.get('final_total') + round(bill.get('public').get('final_total'), 2), 2),
         }
     print({'bill_result': bill_result, 'products_bills': product_bills})
     return JsonResponse({'bill_result': bill_result, 'products_bills': product_bills})
 
 
-def product_choose(request):
+def bill_update(request):
     if request.method == "POST":
         data = request.body
         return bill_calc(data)
     return HttpResponseBadRequest()
 
 
-def testcontent(request):
-    res = '''
-        <!DOCTYPE html>
-        <html>
-        <body onload="myFunction()">
-        <div id="modalBody"></div>
-        <h1>HTML DOM Events</h1>
-        <h2>The onload Event</h2>
-        
-        <script>
-        function myFunction() {
-           fetch('test2').then(function (response) {
-                return response.json();
-            }).then(function (html) {
-                document.getElementById("modalBody").innerHTML = html.bill_result;
-                console.log(html.bill_result)
-            }).catch(function (err) {
-                console.warn('Something went wrong.', err);
-            });
-        }
-        </script>
-        
-        </body>
-        </html>'''
-    return HttpResponse(res)
-    # return json data ve tabloya ekle 
-
-
-def finance_record_content_choose(request, current_pk=None, product_pk=None, finance_pk=None):
-    finance_model = FinanceRecord
-    finance_content_model = FinanceRecordContent
-    product_model = Product
-    if finance_pk is not None:
-        try:
-            finance_table = finance_model.objects.get(pk=finance_pk)
-        except finance_model.DoesNotExist:
-            raise Http404("Does not exist")
-    else:
-        finance_table = finance_model(current=CurrentInformation.objects.get(pk=current_pk))
-        finance_table.save()
-
-    if product_pk is not None:
-        try:
-            product_table = product_model.objects.get(pk=product_pk)
-        except product_model.DoesNotExist:
-            raise Http404("Does not exist")
-    else:
-        raise Http404("Does not exist")
-
-    defaults = {
-        'discount_rate': 20.0,
-        'quantity': 1.0,
-        'unit_price': product_table.price,
-    }
-    finance_content_table, created = finance_content_model.objects.update_or_create(
-        finance=finance_table, product=product_table,
-        defaults=defaults,
-    )
-    print(defaults)
-    print(finance_content_table)
-    print(created)
-    return HttpResponse('selam')
-
-
 def finance_record(request, pk=None):
-    products = [
-        {'pk': 2, 'tax_rate': 10.0, 'discount_rate': 20.0, 'quantity': 0.5, 'unit_price': 1000.00},
-        {'pk': 3, 'tax_rate': 20.0, 'discount_rate': 30.0, 'quantity': 2.0, 'unit_price': 5000.00},
-    ]
-
     record_content = []
     model = FinanceRecord
     form_class = FinanceRecordForm
     template = "front_end/pages/create_or_update/finance_record.html"
+    # TODO: Content add to the record
+    # TODO: Validation for max and min value, and negative value and empty value, and zero value and read-only currency inputs
+    # TODO: Make system for stock management and money management
     if request.method == "POST":
-        post = request.POST.copy()  # to make it mutable
-        for index in range(len(post.getlist('data-product-id'))):
-            product = FinanceRecordContent(finance=model.objects.get(pk=pk),
-                                           product=Product.objects.get(pk=post.getlist('data-product-id')[index]),
-                                           discount_rate=post.getlist('data-product-discount')[index],
-                                           quantity=post.getlist('data-product-unit')[index],
-                                           unit_price=post.getlist('data-product-price-by-unit')[index])
-            record_content.append(product)
+        # Before save the record, we need to prepare the content of the record
+        post = request.POST.copy()
+        # create for loop for each records in post
+        record_content = []
+        for record in post.getlist('records'):
+            record = json.loads(record)
+            hidden = record.get('hidden')
+            public = record.get('public')
+            record_content.append(FinanceRecordContent(finance_id=pk,
+                                                       product_id=hidden.get('pk'),
+                                                       discount_rate=public.get('discount_rate'),
+                                                       quantity=public.get('quantity'),
+                                                       unit_price=public.get('unit_price'),
+                                                       total=hidden.get('total'),
+                                                       discount_sum=hidden.get('discount_sum'),
+                                                       sub_total=hidden.get('sub_total'),
+                                                       vat_total=hidden.get('vat_total'),
+                                                       final_total=public.get('final_total'), ))
 
-        post['total'] = float(post['total'].replace(',', '')) if post['total'] else post['total']
-        post['discount_sum'] = float(post['discount_sum'].replace(',', '')) if post['discount_sum'] else post[
-            'discount_sum']
-        post['sub_total'] = float(post['sub_total'].replace(',', '')) if post['sub_total'] else post['sub_total']
-        post['vat_total'] = float(post['vat_total'].replace(',', '')) if post['vat_total'] else post['vat_total']
-        post['final_total'] = float(post['final_total'].replace(',', '')) if post['final_total'] else post[
-            'final_total']
-        post['amount_paid'] = float(post['amount_paid'].replace(',', '')) if post['amount_paid'] else post[
-            'amount_paid']
+        # convert date to Postgres format
+        def date_convert(p, fields):
+            for field in fields:
+                p[field] = datetime.strptime(p[field], '%m/%d/%Y').strftime('%Y-%m-%d')
+
+        # convert currency to float
+        def currency_convert(p, names):
+            for name in names:
+                if p[name] == "":
+                    p[name] = "0.0"
+
+                if "," in p[name]:
+                    p[name] = float(p[name].replace(',', ''))
+                else:
+                    p[name] = float(p[name])
+
+        currency_convert(post, ['total', 'discount_sum', 'sub_total', 'vat_total', 'final_total', 'amount_paid'])
+        date_convert(post, ['waybill_date', 'invoice_date', 'transaction_date', 'dispatch_date'])
         request.POST = post
 
     data = request.POST
@@ -194,7 +147,6 @@ def finance_record(request, pk=None):
 
         if request.method == "POST":
             form = form_class(data, instance=table)
-
             if form.is_valid():
                 form.save()
                 FinanceRecordContent.objects.filter(finance_id=pk).delete()

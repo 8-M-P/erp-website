@@ -4,11 +4,11 @@
     {% include 'front_end/widgets/inculude_css.html' with select=True date=True %}
 {% endblock css %}
 {% block content %}
-    <div class="row" hx-target="this" hx-swap="outerHTML" hx-indicator=".loader">
+    <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <form method="post"
+                    <form id="form" method="post"
                             {% if pk %}
                           action="{% url 'finance-record-update' pk=pk %}"
                             {% else %}
@@ -106,98 +106,103 @@
                                 </tr>
                                 </thead>
                                 <tbody id="recordContent">
-                                {% for row in content %}
-                                    <tr id="content-{{ row.product.pk }}"
-                                            {% comment %}
-                                        let islem_tutar = price * unit
-                                        let iskonto_tutar = islem_tutar * discount / 100
-                                        let ara_toplam = islem_tutar * (100 - discount) / 100
-                                        let total_price = ara_toplam * (1 + (Number(attr.tax_rate) / 100))
-                                        let kdv_toplam = (total_price - (total_price / (1 + (Number(attr.tax_rate) / 100))))
-                                        {{ row.quantity|floatformat:"0"|mult:row.unit_price }}
-                                        {% endcomment %}
-                                        data-product-units-price-total="{{ row.unit_price|total:row.quantity }}"
-                                        data-product-discount-total="{% discount_sum row.unit_price row.quantity row.discount_rate %}"
-                                        data-product-sub-total="{% sub_total row.unit_price row.quantity row.discount_rate %}"
-                                        data-product-tax-total="{% vat_total row.unit_price row.quantity row.discount_rate row.product.tax_rate %}"
-                                        data-product-total-price="{% final_total row.unit_price row.quantity row.discount_rate row.product.tax_rate %}"
-                                        data-product-sku="{{ row.product.sku }}"
-                                        data-product-name="{{ row.product.name }}"
-                                        data-product-measurement-unit="{{ row.product.measurement_unit.symbol }}"
-                                        data-product-tax-rate="{{ row.product.tax_rate|floatformat:"0" }}"
-                                        data-product-discount="{{ row.discount_rate|floatformat:"0" }}"
-                                        data-product-unit="{{ row.quantity|floatformat:"0" }}"
-                                        data-product-price-by-unit="{{ row.unit_price|commatopoint }}">
-                                        <td>
-                                            <input type="hidden" name="data-product-id" value="{{ row.product.pk }}">
-                                            <button type="Button" class="btn btn-primary btn-sm"
-                                                    data-bs-target="#productModal" data-bs-toggle="modal">Düzenle
-                                            </button>
-                                            <button type="Button" class="btn btn-danger btn-sm"
-                                                    data-bs-target="#deleteModal" data-bs-toggle="modal"
-                                                    data-bs-id="{{ row.pk }}" data-bs-db="1"
-                                                    data-bs-name="{{ row.product.name }}"
-                                                    data-bs-tr-id="content-{{ row.product.pk }}">Sil
-                                            </button>
-                                        </td>
-                                        <td class="data-product-sku">
-                                            <input type="hidden" name="data-product-sku" value="{{ row.product.sku }}">
-                                            {{ row.product.sku }}
-                                        </td>
-                                        <td class="data-product-name">
-                                            <input type="hidden" name="data-product-name"
-                                                   value="{{ row.product.name }}">
-                                            {{ row.product.name }}
-                                        </td>
-                                        <td class="data-product-measurement-unit">
-                                            <input type="hidden" name="data-product-measurement-unit"
-                                                   value="{{ row.product.measurement_unit.symbol }}">
-                                            {{ row.product.measurement_unit.symbol }}
-                                        </td>
-                                        <td class="data-product-tax-rate">
-                                            <input type="hidden" name="data-product-tax-rate"
-                                                   value="{{ row.product.tax_rate|floatformat:"0" }}">
-                                            {{ row.product.tax_rate|floatformat:"0" }}
-                                        </td>
-                                        <td class="data-product-discount">
-                                            <input type="hidden" name="data-product-discount"
-                                                   value="{{ row.discount_rate|floatformat:"0" }}">
-                                            {{ row.discount_rate|floatformat:"0" }}
-                                        </td>
-                                        <td class="data-product-unit">
-                                            <input type="hidden" name="data-product-unit"
-                                                   value="{{ row.quantity|floatformat:"0" }}">
-                                            {{ row.quantity|floatformat:"0" }}
-                                        </td>
-                                        <td class="data-product-price-by-unit">
-                                            <input type="hidden" name="data-product-price-by-unit"
-                                                   value="{{ row.unit_price|commatopoint }}">
-                                            {{ row.unit_price|floatformat:"2g"|moneyformat }}
-                                        </td>
-                                        <td class="data-product-total-price">
-                                            <input type="hidden" name="data-product-total-price"
-                                                   value="{{ row.unit_price|totalformat:row.product.tax_rate }}">
-                                            {{ row.unit_price|totalformat:row.product.tax_rate|floatformat:"2g"|moneyformat }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
+                                {% if content %}
+                                    {% for row in content %}
+                                        <tr id="content-{{ row.product.pk }}" data-pk="{{ row.product.pk }}"
+                                            data-sku="{{ row.product.sku }}" data-name="{{ row.product.name }}"
+                                            data-measurement_unit="{{ row.product.measurement_unit }}"
+                                            data-tax_rate="{{ row.product.tax_rate|commatopoint }}"
+                                            data-discount_rate="{{ row.discount_rate|commatopoint }}"
+                                            data-quantity="{{ row.quantity|commatopoint }}"
+                                            data-unit_price="{{ row.unit_price|commatopoint }}"
+                                            data-final_total="{{ row.final_total|commatopoint }}">
+                                            <td>
+                                                <button type="Button" class="btn btn-primary btn-sm"
+                                                        data-bs-target="#productModal" data-bs-toggle="modal">Düzenle
+                                                </button>
+                                                <button type="Button" class="btn btn-danger btn-sm"
+                                                        data-bs-target="#deleteModal" data-id="{{ row.product.pk }}"
+                                                        data-name="{{ row.product.name }}" data-bs-toggle="modal"
+                                                        data-tr-id="content-{{ row.product.pk }}">Sil
+                                                </button>
+                                                <input type="hidden" name="records"
+                                                       value='{"hidden":{"pk":{{ row.product.pk }},"discount_sum":{{ row.discount_sum|commatopoint }},"sub_total":{{ row.sub_total|commatopoint }},"vat_total":{{ row.vat_total|commatopoint }},"total":{{ row.total|commatopoint }}},"public":{"sku":{{ row.product.sku }},"name":"{{ row.product.name }}","measurement_unit":"{{ row.product.measurement_unit }}","tax_rate":{{ row.product.tax_rate|commatopoint }},"discount_rate":{{ row.discount_rate|commatopoint }},"quantity":{{ row.quantity|commatopoint }},"unit_price":{{ row.unit_price|commatopoint }},"final_total":{{ row.final_total|commatopoint }}}}'>
+                                                <input type="hidden" name="data-pk" value="{{ row.product.pk }}">
+                                                <input type="hidden" name="data-discount_sum"
+                                                       value="{{ row.discount_sum|commatopoint }}">
+                                                <input type="hidden" name="data-sub_total"
+                                                       value="{{ row.sub_total|commatopoint }}">
+                                                <input type="hidden" name="data-vat_total"
+                                                       value="{{ row.vat_total|commatopoint }}">
+                                                <input type="hidden" name="data-total"
+                                                       value="{{ row.total|commatopoint }}">
+                                            </td>
+                                            <td>
+                                                {{ row.product.sku }}
+                                            </td>
+                                            <td>
+                                                {{ row.product.name }}
+                                            </td>
+                                            <td>
+                                                {{ row.product.measurement_unit.symbol }}
+                                            </td>
+                                            <td>
+                                                {{ row.product.tax_rate|floatformat:"0" }}
+                                            </td>
+                                            <td>
+                                                {{ row.discount_rate|floatformat:"0" }}
+                                            </td>
+                                            <td>
+                                                {{ row.quantity|floatformat:"0" }}
+                                            </td>
+                                            <td>
+                                                {{ row.unit_price|floatformat:"2g"|moneyformat }}
+                                            </td>
+                                            <td>
+                                                {{ row.unit_price|totalformat:row.product.tax_rate|floatformat:"2g"|moneyformat }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
                                 </tbody>
                             </table>
                         </div>
                         <hr>
                         <div class="row justify-content-end mt-5">
                             <div class="col-4 px-3">
-                                <fieldset class="border p-2">
-                                    <legend class="float-none w-auto p-2">Ödeme Durumu</legend>
-                                    {% form_elements variant="currency" field=form.amount_paid %}
+                                <style>
+                                    fieldset .form-switch {
+                                        position: absolute;
+                                        right: 20px;
+                                        top: -44px;
+                                        box-shadow: 0 0 0 4px white;
+                                        z-index: 99;
+                                        padding-left: 28px;
+                                    }
+
+                                    fieldset .form-check-input {
+                                        margin-left: -2em !important;
+                                    }
+                                </style>
+                                <fieldset class="border position-relative p-2">
+                                    <legend class="float-none w-auto p-2">Ödeme
+                                        Durumu
+                                    </legend>
+                                    {% if form.amount_paid.initial == form.final_total.initial %}
+                                        {% switch id="fullPaid" label="Hepsi Ödendi" checked %}
+                                        {% form_elements variant="currency" field=form.amount_paid readonly %}
+                                    {% else %}
+                                        {% switch id="fullPaid" label="Hepsi Ödendi" %}
+                                        {% form_elements variant="currency" field=form.amount_paid %}
+                                    {% endif %}
                                 </fieldset>
                             </div>
                             <div class="col-3">
-                                {% form_elements variant="currency" field=form.total %}
-                                {% form_elements variant="currency" field=form.discount_sum %}
-                                {% form_elements variant="currency" field=form.sub_total %}
-                                {% form_elements variant="currency" field=form.vat_total %}
-                                {% form_elements variant="currency" field=form.final_total %}
+                                {% form_elements variant="currency" field=form.total readonly %}
+                                {% form_elements variant="currency" field=form.discount_sum readonly %}
+                                {% form_elements variant="currency" field=form.sub_total readonly %}
+                                {% form_elements variant="currency" field=form.vat_total readonly %}
+                                {% form_elements variant="currency" field=form.final_total readonly %}
                             </div>
                         </div>
                         <hr>
@@ -219,11 +224,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="contentPK">
+                    <input type="hidden" id="pk">
                     <input type="hidden" id="tax_rate">
-                    {% input id="discount" help_text="İskonto Oranı" maxlength="2" label="İskonto" required="True" %}
-                    {% input id="unit" help_text="Toplam Miktar" maxlength="6" label="Miktar" required="True" %}
-                    {% input id="price_by_unit" variant="currency" help_text="Birim Fiyatı" label="Fiyat" required="True" %}
+                    {% input id="discount_rate" help_text="İskonto Oranı" maxlength="4" label="İskonto" required="True" %}
+                    {% input id="quantity" help_text="Toplam Miktar" maxlength="6" label="Miktar" required="True" %}
+                    {% input id="unit_price" variant="currency" help_text="Birim Fiyatı" label="Fiyat" required="True" %}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Güncelle</button>
@@ -254,11 +259,31 @@
     </div>
 {% endblock content %}
 {% block script %}
-    {% include 'front_end/widgets/inculude_js.html' with select=True date=True other=True %}
+    {% include 'front_end/widgets/inculude_js.html' with select=True date=True other=True table=False %}
     <script>
+        function fullPaid() {
+            const fullPaid = document.getElementById("fullPaid");
+            const amountPaid = document.getElementById("id_amount_paid");
+            if (fullPaid.checked) {
+                amountPaid.value = document.getElementById("id_final_total").value;
+                amountPaid.readOnly = true;
+            } else {
+                amountPaid.value = "";
+                amountPaid.readOnly = false;
+            }
+        }
+
+        //event listener for full paid
+        document.getElementById("fullPaid").addEventListener("change", fullPaid);
+        //event listener for final total change and full paid
+        document.getElementById("id_final_total").addEventListener("change", fullPaid);
+    </script>
+    <script>
+
         function hideFunc(modalName) {
             const q_model = document.querySelector(modalName);
             const modal = bootstrap.Modal.getInstance(q_model);
+            Array.from(q_model.getElementsByTagName("input")).forEach((input) => input.value = "");
             modal.hide();
         }
 
@@ -271,17 +296,6 @@
             return false
         }
 
-        function trSwoop(tableName = "recordContent") {
-            const table = document.getElementById(tableName);
-            const arr = Array.from(table.rows);
-            console.log(arr)
-            // loop through each attribute
-            for (let attribute of arr) {
-                console.log(attribute.name); // attribute name
-                console.log(attribute.value); // attribute value
-            }
-        }
-
         fetch('{% url 'product-list-ajax' %}').then(function (response) {
             return response.text();
         }).then(function (html) {
@@ -290,85 +304,248 @@
             console.warn('Something went wrong.', err);
         });
 
+        let tableID = "recordContent"
+        let tableRef = document.getElementById(tableID)
 
         function addRow(attr) {
             function addCell(row, name, content) {
                 let newCell = row.insertCell()
                 row.setAttribute("data-" + name, content)
-                let newText = document.createTextNode(content)
+                let newText;
+                switch (name) {
+                    case "final_total":
+                    case "unit_price":
+                        newText = document.createTextNode(moneyFormat(content))
+                        break;
+                    default:
+                        newText = document.createTextNode(content)
+                        break;
+                }
                 newCell.appendChild(newText)
             }
 
-            let tableID = "recordContent"
-            let tableRef = document.getElementById(tableID)
-            let tr = tableRef.querySelectorAll("tr")
+            let newRow = tableRef.insertRow(-1);
+            newRow.setAttribute("id", "content-" + attr.hidden.pk)
+            newRow.setAttribute("data-pk", attr.hidden.pk)
+            let newCell = newRow.insertCell();
 
-            if (trIDSwoop("content-" + attr.hidden.pk)) {
-                new Noty({
-                    type: 'warning',
-                    layout: 'topRight',
-                    text: 'Bu ürün listede mevcut!',
-                    timeout: 5000,
-                }).show();
+            let btn = document.createElement("button");
+            btn.innerHTML = "Düzenle";
+            btn.type = "Button"
+            btn.className = "btn btn-primary btn-sm";
+            btn.setAttribute("data-bs-target", "#productModal")
+            btn.setAttribute("data-bs-toggle", "modal")
+            newCell.appendChild(btn);
+
+            let btn2 = document.createElement("button");
+            btn2.innerHTML = "Sil";
+            btn2.type = "Button"
+            btn2.className = "btn btn-danger btn-sm";
+            btn2.setAttribute("data-bs-target", "#deleteModal")
+            btn2.setAttribute("data-id", attr.hidden.pk)
+            btn2.setAttribute("data-name", attr.public.name)
+            btn2.setAttribute("data-bs-toggle", "modal")
+            btn2.setAttribute("data-tr-id", "content-" + attr.hidden.pk)
+            newCell.appendChild(btn2);
+
+            const input = document.createElement("input")
+            input.setAttribute("type", "hidden")
+            input.setAttribute("name", "records")
+            input.setAttribute("value", JSON.stringify(attr))
+            newCell.appendChild(input)
+
+            for (const [key, value] of Object.entries(attr.hidden)) {
+                const input = document.createElement("input")
+                input.setAttribute("type", "hidden")
+                input.setAttribute("name", "data-" + key)
+                input.setAttribute("value", value.toString())
+                newCell.appendChild(input)
+            }
+            for (const [key, value] of Object.entries(attr.public)) {
+                addCell(newRow, key, value);
+            }
+
+        }
+
+        const productModal = document.getElementById('productModal');
+
+        productModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const tr = button.parentElement.parentElement;
+            const attributeNodeArray = [...tr.attributes];
+            const attrs = attributeNodeArray.reduce((attrs, attribute) => {
+                attrs[attribute.name] = attribute.value;
+                let element = document.getElementById(attribute.name.replace('data-', ''));
+                if (typeof (element) != 'undefined' && element != null) {
+                    element.value = attribute.value
+                }
+                return attrs;
+            }, {});
+        })
+
+        productModal.addEventListener('hide.bs.modal', function (event) {
+            const pk = productModal.querySelector('#pk').value;
+            const trRef = document.querySelector(`[data-pk="${pk}"]`)
+            Array.from(productModal.getElementsByTagName("input")).forEach((input) => {
+                trRef.setAttribute("data-" + input.id, input.value.replaceAll(",", ""));
+            });
+            swoopAndSend()
+        })
+
+        function moneyFormat(money) {
+            if (isNaN(money)) {
+                return money
             } else {
-                let newRow = tableRef.insertRow(-1);
-                newRow.setAttribute("id", "content-" + attr.hidden.pk)
-                let newCell = newRow.insertCell();
-                for (const [key, value] of Object.entries(attr.hidden)) {
-                    const input = document.createElement("input")
-                    input.setAttribute("type", "hidden")
-                    input.setAttribute("name", "data-" + key)
-                    input.setAttribute("value", value.toString())
-                    newCell.appendChild(input)
-                }
-                for (const [key, value] of Object.entries(attr.public)) {
-                    addCell(newRow, key, value);
-                }
+                const formatter = new Intl.NumberFormat('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY'
+                });
+
+                return formatter.format(money)
             }
         }
 
-        function chooseProduct(product) {
+        function swoopAndSend(other = false) {
+            products = trSwoop()
             let token = document.getElementsByName("csrfmiddlewaretoken")[0].value
-            product = JSON.parse(product.dataset.product)
-            trSwoop()
-            console.log(product)
-            // swoop tamam düzenleyerek gonderme var tablo iceiriğini
-            fetch('{% url 'product-choose' %}', {
+            fetch('{% url 'bill-update' %}', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-CSRFToken': token
                 },
-                body: JSON.stringify(product)
+                body: JSON.stringify(products)
             }).then(function (response) {
                 return response.json();
             }).then(function (data) {
+                tableRef.innerHTML = ''
+                changeINPUTValue('id_total', data['bill_result'].total)
+                changeINPUTValue('id_discount_sum', data['bill_result'].discount_sum)
+                changeINPUTValue('id_sub_total', data['bill_result'].sub_total)
+                changeINPUTValue('id_vat_total', data['bill_result'].vat_total)
+                changeINPUTValue('id_final_total', data['bill_result'].final_total)
                 data['products_bills'].forEach(x => addRow(x))
-                hideFunc("#productsModal")
+                if (!other) {
+                    hideFunc("#productModal")
+                }
+                fullPaid()
             }).catch(function (err) {
-                console.warn('Something went wrong.', err);
+                console.warn('Bir şeyler ters gitti.', err);
             });
+        }
+
+        function trSwoop(count = false, tableName = "recordContent") {
+            const table = document.getElementById(tableName);
+            const arr = Array.from(table.rows);
+            if (count) {
+                return arr.length;
+            }
+            let products = []
+            for (let row of arr) {
+                let product = {}
+                for (const [key, attr] of Object.entries(row.attributes)) {
+                    if (isNaN(parseFloat(attr.value))) {
+                        product[attr.name.replace("data-", "")] = attr.value;
+                    } else {
+                        product[attr.name.replace("data-", "")] = parseFloat(attr.value);
+                    }
+                    //console.log(`${key} : ${attr.name.replace("data-", "")} : ${attr.value}`);
+                }
+                products.push(product)
+            }
+            return products
+        }
+
+        function changeINPUTValue(inputID, value) {
+            document.getElementById(inputID).value = value;
+        }
+
+        function chooseProduct(product) {
+            let token = document.getElementsByName("csrfmiddlewaretoken")[0].value
+            product = JSON.parse(product.dataset.product);
+            for (const [k, v] of Object.entries(product)) {
+                if (isNaN(parseFloat(v))) {
+                    product[k] = v;
+                } else {
+                    product[k] = parseFloat(v);
+                }
+            }
+            product['id'] = "content-" + product.pk
+            if (trIDSwoop("content-" + product.pk)) {
+                new Noty({
+                    type: 'warning',
+                    layout: 'topRight',
+                    text: '"' + product.name + '" isimli ürün listede mevcut!',
+                    timeout: 5000,
+                }).show();
+            } else {
+                let products;
+                if (trSwoop(true) > 0) {
+                    products = trSwoop();
+                    products.push(product);
+                } else {
+                    products = product;
+                }
+                fetch('{% url 'bill-update' %}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': token
+                    },
+                    body: JSON.stringify(products)
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (data) {
+                    tableRef.innerHTML = ''
+                    //TODO: İnputlarda ki Virgül sorunu hallet
+                    changeINPUTValue('id_total', data['bill_result'].total)
+                    changeINPUTValue('id_sub_total', data['bill_result'].sub_total)
+                    changeINPUTValue('id_discount_sum', data['bill_result'].discount_sum)
+                    changeINPUTValue('id_vat_total', data['bill_result'].vat_total)
+                    changeINPUTValue('id_final_total', data['bill_result'].final_total)
+                    data['products_bills'].forEach(x => addRow(x))
+                    hideFunc("#productsModal")
+                    fullPaid()
+                }).catch(function (err) {
+                    console.warn('Bir şeyler ters gitti.', err);
+                });
+            }
         }
     </script>
     <script>
         // Delete
+        function deleteRow(RowID) {
+            const element = document.getElementById(RowID);
+            element.remove();
+            swoopAndSend(true)
+            hideFunc("#deleteModal")
+        }
+
         let deleteModal = document.getElementById('deleteModal');
         deleteModal.addEventListener('show.bs.modal', function (event) {
-            // Button that triggered the modal
-            // data-bs-id="pk" data-bs-db="1" data-bs-name="product-name"
             let button = event.relatedTarget;
-            let recipient = button.getAttribute('data-bs-name');
-            let recipient_id = button.getAttribute('data-bs-id');
-            let tr_id = button.getAttribute('data-bs-tr-id');
+            let recipient = button.getAttribute('data-name');
+            let recipient_id = button.getAttribute('data-id');
+            let tr_id = button.getAttribute('data-tr-id');
             let modalTitle = deleteModal.querySelector('label');
             modalTitle.textContent = '"' + recipient + '" adlı ürün fatura kaydından çıkartılacaktır, emin misiniz ?'
             let deleteBtn = deleteModal.querySelector("#deleteProductButton")
-            deleteBtn.setAttribute("data-bs-id", recipient_id)
-            deleteBtn.setAttribute("data-bs-tr-id", tr_id)
-            if (button.hasAttribute('data-bs-db')) {
-                deleteBtn.setAttribute("data-bs-db", "1")
-            }
+            deleteBtn.setAttribute("data-id", recipient_id)
+            deleteBtn.setAttribute("data-tr-id", tr_id)
+            deleteBtn.removeAttribute("disabled")
+            deleteBtn.onclick = () => deleteRow(tr_id)
+        })
+
+        deleteModal.addEventListener('hide.bs.modal', function (event) {
+            let modalTitle = deleteModal.querySelector('label');
+            modalTitle.textContent = '...'
+            let deleteBtn = deleteModal.querySelector("#deleteProductButton")
+            deleteBtn.setAttribute("data-id", "")
+            deleteBtn.setAttribute("data-tr-id", "")
+            deleteBtn.onclick = ""
+            deleteBtn.setAttribute("disabled", "disabled")
         })
     </script>
 {% endblock script %}

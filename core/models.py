@@ -1,8 +1,10 @@
 from django.db import models
 from django.db.models import Q, F, CheckConstraint
+from django.core.validators import MinValueValidator, DecimalValidator
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
+from front_end.utils.validators import validate_currency, validate_first_char
 
 
 class WeightUnits(models.Model):
@@ -15,8 +17,8 @@ class WeightUnits(models.Model):
 
     class Meta:
         ordering = ["name"]
-        verbose_name = "Ağırlık Birimi"
-        verbose_name_plural = "Ağırlık Birimleri"
+        verbose_name = "Ölçü Birimi"
+        verbose_name_plural = "Ölçü Birimleri"
 
 
 class Category(models.Model):
@@ -85,13 +87,14 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name="Kategori")
     measurement_unit = models.ForeignKey(WeightUnits, on_delete=models.PROTECT, verbose_name="Ölçü Birimi")
     sku = models.CharField(max_length=20, unique=True, blank=True, null=True, help_text="Stok Kodu",
-                           verbose_name="Stok Kodu")
-    upc = models.CharField(max_length=12, unique=True, blank=True, null=True, help_text="Barkod", verbose_name="Barkod")
+                           verbose_name="Stok Kodu", validators=[validate_first_char])
+    upc = models.CharField(max_length=12, unique=True, blank=True, null=True, help_text="Barkod", verbose_name="Barkod",
+                           validators=[validate_first_char])
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, blank=True, null=True, verbose_name="Marka")
     attribute_values = models.ManyToManyField(ProductAttributeValue, blank=True,
                                               related_name="product_attribute_values", verbose_name="Özellikler")
     price = models.DecimalField(default=0, max_digits=12, decimal_places=2, blank=True, null=True,
-                                help_text="Ürün Fiyatı", verbose_name="Fiyat")
+                                help_text="Ürün Fiyatı", verbose_name="Fiyat", validators=[validate_currency])
     tax_rate = models.CharField(default=0, max_length=2, blank=True, help_text="Ürün vergi oranı",
                                 verbose_name="Vergi Oranı")
     is_active = models.BooleanField(default=True, verbose_name="Durum")
@@ -116,7 +119,8 @@ class Product(models.Model):
 class Stock(models.Model):
     product = models.OneToOneField(Product, on_delete=models.PROTECT, verbose_name="Ürün")
     last_checked = models.DateTimeField(default=now, blank=True, verbose_name="Son Kontrol Tarihi")
-    units = models.DecimalField(default=0, max_digits=7, decimal_places=2, verbose_name="Birim")
+    units = models.DecimalField(default=0, max_digits=7, decimal_places=2, verbose_name="Birim",
+                                validators=[MinValueValidator(0)])
 
     class Meta:
         verbose_name = "Stok"
@@ -176,6 +180,110 @@ class Manufacture(models.Model):
     class Meta:
         verbose_name = "Üretim Bilgisi"
         verbose_name_plural = "Üretim Kayıtları"
+
+
+class Warehouse(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Depo Adı")
+    location = models.CharField(max_length=255, verbose_name="Depo Konumu")
+    is_active = models.BooleanField(default=True, verbose_name="Durum")
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Depo"
+        verbose_name_plural = "Depolar"
+
+    def __str__(self):
+        return self.name
+
+
+# Warehouse Shelves
+class WarehouseShelf(models.Model):
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, verbose_name="Depo")
+    shelf = models.CharField(max_length=255, verbose_name="Raf")
+    is_active = models.BooleanField(default=True, verbose_name="Durum")
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Depo Rafı"
+        verbose_name_plural = "Depo Rafları"
+
+    def __str__(self):
+        return self.warehouse.name + " : " + self.shelf
+
+
+# Warehouse Racks
+class WarehouseRack(models.Model):
+    warehouse_shelf = models.ForeignKey(WarehouseShelf, on_delete=models.CASCADE, verbose_name="Depo Rafı")
+    rack = models.CharField(max_length=255, verbose_name="Raf Katı")
+    is_active = models.BooleanField(default=True, verbose_name="Durum")
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Depo Raf Katı"
+        verbose_name_plural = "Depo Raf Katları"
+
+    def __str__(self):
+        return self.warehouse_shelf.warehouse.name + " : " + self.warehouse_shelf.shelf + " : " + self.rack
+
+
+# Warehouse Stock
+class WarehouseStock(models.Model):
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, verbose_name="Depo")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Ürün")
+    shelf = models.ForeignKey(WarehouseShelf, on_delete=models.CASCADE, verbose_name="Raf")
+    # TODO:validated rack choice for particular shelf
+    rack = models.ForeignKey(WarehouseRack, on_delete=models.CASCADE, verbose_name="Raf Katı")
+    is_active = models.BooleanField(default=True, verbose_name="Durum")
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    units = models.DecimalField(default=0, max_digits=7, decimal_places=2, verbose_name="Birim",
+                                validators=[MinValueValidator(0)])
+
+    class Meta:
+        verbose_name = "Depo Stok"
+        verbose_name_plural = "Depo Stokları"
+
+    def __str__(self):
+        return self.warehouse.name + " : " + self.product.name + " : " + str(self.units)
+
+    def save(self, *args, **kwargs):
+        is_new = self.id is None
+        if not is_new:
+            last_units_count = WarehouseStock.objects.get(pk=self.pk)
+            record_type = 1
+            if last_units_count.units > self.units:
+                record_type = 2
+            WarehouseStockRecord.objects.create(warehouse_stock=self, prev_units=last_units_count.units,
+                                                new_units=self.units,
+                                                transaction_type=record_type)
+        super(WarehouseStock, self).save(*args, **kwargs)
+
+
+# Warehouse Stock Record
+class WarehouseStockRecord(models.Model):
+    RECORD_TYPE = [
+        (1, 'Ekleme'),
+        (2, 'Çıkarma'),
+    ]
+    warehouse_stock = models.ForeignKey(WarehouseStock, on_delete=models.CASCADE, verbose_name="Depo Stok")
+    new_units = models.DecimalField(default=0, max_digits=7, decimal_places=2, verbose_name="Yeni Birim",
+                                    validators=[MinValueValidator(0)])
+    prev_units = models.DecimalField(default=0, max_digits=7, decimal_places=2, verbose_name="Eski Birim",
+                                     validators=[MinValueValidator(0)])
+    transaction_type = models.IntegerField(default=1, choices=RECORD_TYPE, verbose_name="İşlem Tipi")
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Depo Stok Kayıt Bilgisi"
+        verbose_name_plural = "Depo Stok Kayıtları"
+
+    def __str__(self):
+        return self.warehouse_stock.warehouse.name + " : " + self.warehouse_stock.product.name + " : " + str(
+            self.new_units) + " ( " + self.get_transaction_type_display() + " )" + " : " + str(self.created_at)
 
 
 class Media(models.Model):

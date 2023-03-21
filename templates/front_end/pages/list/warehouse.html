@@ -1,0 +1,70 @@
+{% extends 'front_end/layout.html' %}
+{% load static verbose_names %}
+{% block css %}
+    {% include 'front_end/widgets/inculude_css.html' with table=True %}
+{% endblock css %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 grid-margin stretch-card m-auto">
+            {% comment %} <div class="card">
+                <h6 class="card-header">{{ table.all.first.warehouse.name }}</h6>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <div class="card-body">
+                            {% for row in table %}
+                                <div>Shelf: {{ row.shelf }}
+                                    {% for f in row.warehousestock_set.all %}
+                                        |{{ f.shelf.shelf }}:{{ f.rack.rack }}|
+                                    {% endfor %}
+                                </div>
+                                <div class="row">Racks:
+                                    {% with racks=row.warehouserack_set.all %}
+                                        {% widthratio row.warehousestock_set.all.count racks.count 100 as now %}
+                                        <div class="progress">
+                                            <div class="progress-bar"
+                                                 style="width:{{ now }}%" role="progressbar"
+                                                 aria-valuenow="{{ now }}"
+                                                 aria-valuemin="0" aria-valuemax="100">{{ now }}</div>
+                                        </div>
+                                        {% for rack in racks %}
+                                            {% if rack.warehousestock_set.all %}
+                                                <div class="mx-1 bg-danger opacity-50 rounded-1"
+                                                     style="width: 25px;height: 25px;"
+                                                     data-bs-container="body" data-bs-toggle="popover"
+                                                     data-bs-trigger="hover focus"
+                                                     data-bs-placement="right"
+                                                     title="Rack {{ rack.rack }}"
+                                                     data-bs-content="
+                                                {% for r in rack.warehousestock_set.all %}
+                                                    {{ r.product }}
+                                                    {{ r.shelf.shelf }}
+                                                    {{ r.rack.rack }}
+                                                    {{ r.units }}
+                                                {% endfor %}"
+                                                ></div>
+                                            {% else %}
+                                                <div class="mx-1 bg-success opacity-75 rounded-1"
+                                                     style="width: 25px;height: 25px;"
+                                                     data-bs-container="body" data-bs-toggle="popover"
+                                                     data-bs-trigger="hover focus"
+                                                     data-bs-placement="right"
+                                                     title="Rack {{ rack.rack }}"
+                                                     data-bs-content="Empty"
+                                                ></div>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                    {% endwith %}
+                                </div>
+                                <hr>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>{% endcomment %}
+        </div>
+    </div>
+{% endblock content %}
+{% block script %}
+    {% include 'front_end/widgets/inculude_js.html' with table=True %}
+{% endblock script %}

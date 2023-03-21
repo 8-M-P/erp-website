@@ -16,7 +16,11 @@ def isequel_filter(val, val2):
 
 @register.filter(name="isselected")
 def is_selected(selected_list, key):
-    return any(x.pk == key for x in selected_list)
+    for x in selected_list:
+        if hasattr(x, "pk"):
+            if x.pk == key:
+                return True
+    return False
 
 
 @register.filter(name="moneyformat")
@@ -24,7 +28,7 @@ def money_format(val):
     newval = val.rsplit(",", 1)
     newval[0] = newval[0].replace(".", ",")
     newval = ".".join(newval)
-    return newval
+    return "₺" + newval
 
 
 @register.filter(name="totalformat")

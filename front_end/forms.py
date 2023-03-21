@@ -62,3 +62,27 @@ class StockForm(ModelForm):
     class Meta:
         model = core.models.Stock
         exclude = ['last_checked']
+
+
+class WarehouseForm(ModelForm):
+    class Meta:
+        model = core.models.Warehouse
+        fields = '__all__'
+
+
+class WarehouseShelfForm(ModelForm):
+    class Meta:
+        model = core.models.WarehouseShelf
+        fields = '__all__'
+
+
+class WarehouseRackForm(ModelForm):
+    class Meta:
+        model = core.models.WarehouseRack
+        fields = '__all__'
+
+
+class WarehouseStockForm(ModelForm):
+    class Meta:
+        model = core.models.WarehouseStock
+        fields = '__all__'

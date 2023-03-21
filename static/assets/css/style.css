@@ -36,7 +36,9 @@ tr.htmx-swapping td {
 }
 
 .tab-content {
-    border-color: #172340 #172340;
+    /* Dark Mode: #172340*/
+    /* Light Mode: #dee2e6*/
+    border-color: #dee2e6 #dee2e6;
     border-width: 1px;
     border-style: solid;
     border-top: transparent;

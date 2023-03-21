@@ -25,25 +25,17 @@
                     {% for row  in table %}
                         <tr>
                             <td>
-                                <button class="btn btn-primary" onclick="chooseProduct(this)"
+                                <button class="btn btn-primary" type="button" onclick="chooseProduct(this)"
                                         data-product='{
                                          "pk" : "{{ row.pk }}",
                                          "sku" : "{{ row.sku }}",
                                          "name" : "{{ row.name }}",
-                                         "upc" : "{{ row.upc }}",
                                          "tax_rate" : {{ row.tax_rate|commatopoint }},
                                          "unit_price" : {{ row.price|commatopoint }},
                                          "measurement_unit" : "{{ row.measurement_unit }}",
                                          "quantity" : 1.0,
                                          "discount_rate" : 0.0
                                         }'
-                                        data-product-id="{{ row.pk }}"
-                                        data-product-sku="{{ row.sku }}"
-                                        data-product-name="{{ row.name }}"
-                                        data-product-upc="{{ row.upc }}"
-                                        data-product-tax-rate="{{ row.tax_rate }}"
-                                        data-product-price="{{ row.price }}"
-                                        data-product-measurement-unit="{{ row.measurement_unit.symbol }}"
                                 >Seç
                                 </button>
                             </td>

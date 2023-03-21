@@ -1,13 +1,12 @@
 from django.urls import path
 
-from front_end.views.finance_record import testcontent, product_choose
+from front_end.views.finance_record import bill_update
 from front_end.views.views import *
 
 urlpatterns = [
     path('', current_group_list, name='home'),
     path('result', result, name='result'),
-    path('test', testcontent),
-    path('product-choose', product_choose, name='product-choose'),
+    path('bill-update', bill_update, name='bill-update'),
 ]
 
 # Current Group
@@ -44,7 +43,6 @@ urlpatterns += [
 
 # Finance Record Content
 urlpatterns += [
-    path('finance-record-content/choose/', finance_record_content_choose, name='finance-record-content-choose'),
     path('finance-record-content/create/', finance_record, name='finance-record-content-create'),
 ]
 
@@ -95,4 +93,9 @@ urlpatterns += [
     path('stock/create/', stock, name='stock-create'),
     path('stock/<int:pk>/', stock, name='stock-update'),
     path('stock/<int:pk>/delete/', stock_delete, name='stock-delete'),
+]
+
+#  Warehouse
+urlpatterns += [
+    path('warehouse/', warehouse_dashboard, name='warehouse'),
 ]

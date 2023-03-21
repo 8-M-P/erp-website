@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.core.validators import RegexValidator, MinLengthValidator
+from django.core.validators import RegexValidator, MinLengthValidator, MinValueValidator, DecimalValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -7,6 +7,8 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 import core.models
+
+from front_end.utils.validators import validate_currency, validate_first_char
 
 
 class CustomAccountManager(BaseUserManager):
@@ -265,17 +267,20 @@ class FinanceRecord(models.Model):
     waybill_date = models.DateField(default=now, blank=True, null=True, verbose_name="İrsaliye Tarihi")
     dispatch_date = models.DateField(default=now, blank=True, null=True, verbose_name="Sevk Tarihi")
     total = models.DecimalField(default=0, max_digits=9, decimal_places=2,
-                                verbose_name="İşlem Toplam Turaı", help_text="Fatura birimleri toplam turarı.")
+                                verbose_name="İşlem Toplam Turaı", help_text="Fatura birimleri toplam turarı.",
+                                validators=[validate_currency])
     discount_sum = models.DecimalField(default=0, blank=True, null=True, max_digits=9, decimal_places=2,
-                                       verbose_name="İskonto Tutarı")
+                                       verbose_name="İskonto Tutarı", validators=[validate_currency])
     sub_total = models.DecimalField(default=0, max_digits=9, decimal_places=2, verbose_name="Ara Toplam",
-                                    help_text="İskonto uygulanmış tutar.")
+                                    help_text="İskonto uygulanmış tutar.", validators=[validate_currency])
     vat_total = models.DecimalField(default=0, max_digits=9, blank=True, null=True, decimal_places=2,
-                                    verbose_name="KDV Tutarı")
+                                    verbose_name="KDV Tutarı", validators=[validate_currency])
     final_total = models.DecimalField(default=0, max_digits=9, decimal_places=2,
-                                      verbose_name="Genel Toplam", help_text="Fatura toplam tutarı.")
+                                      verbose_name="Genel Toplam", help_text="Fatura toplam tutarı.",
+                                      validators=[validate_currency])
     amount_paid = models.DecimalField(default=0, max_digits=9, blank=True, null=True, decimal_places=2,
-                                      verbose_name="Ödenen Miktar", help_text="Faturanın kalan miktar.")
+                                      verbose_name="Ödenen Miktar", help_text="Faturanın kalan miktar.",
+                                      validators=[validate_currency])
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -291,21 +296,23 @@ class FinanceRecordContent(models.Model):
     finance = models.ForeignKey(FinanceRecord, on_delete=models.CASCADE, verbose_name="Finansal Kayıt")
     product = models.ForeignKey(core.models.Product, on_delete=models.PROTECT, verbose_name="Ürün")
     discount_rate = models.DecimalField(default=0, blank=True, max_digits=3, decimal_places=1,
-                                        verbose_name="İskonto Oranı")
+                                        verbose_name="İskonto Oranı", validators=[MinValueValidator(0)])
     quantity = models.DecimalField(default=0, blank=True, max_digits=3, decimal_places=1,
-                                   verbose_name="Miktar")
+                                   verbose_name="Miktar", validators=[MinValueValidator(0)])
     unit_price = models.DecimalField(default=0, blank=True, max_digits=9, decimal_places=2,
-                                     verbose_name="Birim Fiyatı")
-
-    def tax_sum(self):
-        return (int(self.product.tax_rate) / 100 * (
-                float(self.discount_rate) / 100 * float(self.unit_price))) * self.quantity
-
-    def discount_sum(self):
-        return (self.discount_rate / 100 * self.unit_price) * self.quantity
-
-    def sum_total(self):
-        return self.unit_price * self.quantity
+                                     verbose_name="Birim Fiyatı", validators=[validate_currency])
+    total = models.DecimalField(default=0, max_digits=9, decimal_places=2,
+                                verbose_name="İşlem Toplam Turaı", help_text="Fatura birimleri toplam turarı.",
+                                validators=[validate_currency])
+    discount_sum = models.DecimalField(default=0, blank=True, null=True, max_digits=9, decimal_places=2,
+                                       verbose_name="İskonto Tutarı", validators=[validate_currency])
+    sub_total = models.DecimalField(default=0, max_digits=9, decimal_places=2, verbose_name="Ara Toplam",
+                                    help_text="İskonto uygulanmış tutar.", validators=[validate_currency])
+    vat_total = models.DecimalField(default=0, max_digits=9, blank=True, null=True, decimal_places=2,
+                                    verbose_name="KDV Tutarı", validators=[validate_currency])
+    final_total = models.DecimalField(default=0, max_digits=9, decimal_places=2,
+                                      verbose_name="Genel Toplam", help_text="Fatura toplam tutarı.",
+                                      validators=[validate_currency])
 
     class Meta:
         verbose_name = "Finanslar Kayıt İçeriği"

@@ -4,7 +4,12 @@
     {% include 'front_end/widgets/inculude_css.html' with select=True date=True %}
 {% endblock css %}
 {% block content %}
-    <div class="row" hx-target="this" hx-swap="outerHTML" hx-indicator=".loader">
+    <div class="row">
+        <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
         <div class="col-md-6 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
@@ -31,5 +36,55 @@
     </div>
 {% endblock content %}
 {% block script %}
-    {% include 'front_end/widgets/inculude_js.html' with select=True date=True other=True %}
+    {% include 'front_end/widgets/inculude_js.html' with select=True date=True other=True chart=True %}
+    // Create javascript code from chart.js library and Stacked bar chart type and canvas id chart
+    <script>
+        const data = [{x: 'Jan', net: 100, cogs: 50, gm: 50}, {x: 'Feb', net: 120, cogs: 55, gm: 75}];
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb'],
+                datasets: [{
+                    label: 'Net sales',
+                    data: data,
+                    parsing: {
+                        yAxisKey: 'net'
+                    }
+                }, {
+                    label: 'Cost of goods sold',
+                    data: data,
+                    parsing: {
+                        yAxisKey: 'cogs'
+                    }
+                }, {
+                    label: 'Gross margin',
+                    data: data,
+                    parsing: {
+                        yAxisKey: 'gm'
+                    }
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Chart.js Bar Chart - Stacked'
+                    },
+                },
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+    </script>
+
+
 {% endblock script %}

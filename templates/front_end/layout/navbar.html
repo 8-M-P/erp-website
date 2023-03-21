@@ -48,44 +48,44 @@
                     <i class="link-arrow"></i>
                 </a>
                 <div class="submenu">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul class="submenu-item">
-                                <li class="category-heading">Ürünler</li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'product-create' %}">Yeni Ekle</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'product-list' %}">Listele</a>
-                                </li>
-                                <li class="category-heading">Kategoriler</li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'category-create' %}">Yeni Ekle</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'category-list' %}">Listele</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <ul class="submenu-item">
-                                <li class="category-heading">Markalar</li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'brand-create' %}">Yeni Ekle</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'brand-list' %}">Listele</a>
-                                </li>
-                                <li class="category-heading">Özellikler</li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'product-attr-create' %}">Yeni Ekle</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'product-attr-list' %}">Listele</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+
+                    <ul class="submenu-item">
+                        <li class="category-heading">Ürünler</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'product-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'product-list' %}">Listele</a>
+                        </li>
+                        <li class="category-heading">Kategoriler</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'category-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'category-list' %}">Listele</a>
+                        </li>
+                        <li class="category-heading">Markalar</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'brand-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'brand-list' %}">Listele</a>
+                        </li>
+                        <li class="category-heading">Özellikler</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'product-attr-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'product-attr-list' %}">Listele</a>
+                        </li>
+                        <li class="category-heading">Özellik Değerleri</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'product-attr-value-create' %}">Yeni Ekle</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'product-attr-value-list' %}">Listele</a>
+                        </li>
+                    </ul>
                 </div>
             </li>
             <li class="nav-item">
@@ -99,7 +99,7 @@
                     <span class="menu-title">Üretim</span></a>
             </li>
             <li class="nav-item">
-                <a href="#" target="_blank" class="nav-link">
+                <a href="{% url 'stock-list' %}" class="nav-link">
                     <i class="link-icon" data-feather="hash"></i>
                     <span class="menu-title">Depo</span></a>
             </li>

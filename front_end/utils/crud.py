@@ -39,7 +39,6 @@ def crud(request, template, model, form_class, pk=None, attr=None, return_bool=F
                     if str(pk) != data[attr['input_key']]:
                         messages.error(request, attr['error_msg'])
                         form.add_error(attr['input_key'], attr['error_msg'])
-
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Güncelleme başarılı.')
@@ -48,8 +47,7 @@ def crud(request, template, model, form_class, pk=None, attr=None, return_bool=F
                 return redirect('result')
             else:
                 messages.warning(request, 'Girilen bilgileri kontol ediniz.')
-                print(form.errors)
-                form = form_class(data=data or None, initial=data.dict() or None)
+                form = form_class(data or None, instance=table or None)
 
         elif request.method == "DELETE":
             if table.delete():

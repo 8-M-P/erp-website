@@ -44,8 +44,12 @@ class FinanceRecordContentAdmin(admin.ModelAdmin):
     list_display = ('finance', 'product', 'discount_rate', 'quantity', 'unit_price')
 
 
+class CurrencyUnitsAdmin(admin.ModelAdmin):
+    list_display = ('name', 'symbol', 'shortening')
+
+
 admin.site.register(User, UserAdminConfig)
-admin.site.register(CurrencyUnits)
+admin.site.register(CurrencyUnits, CurrencyUnitsAdmin)
 admin.site.register(CurrentGroup, CurrentGroupAdmin)
 admin.site.register(CurrentInformation)
 admin.site.register(BankNames)

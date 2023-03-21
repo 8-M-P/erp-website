@@ -41,6 +41,7 @@
                    type="{{ type|default:"text" }}" placeholder="{{ placeholder|default:"*" }}"
                    maxlength="{{ maxlength|default:"10" }}"
                     {% endif %}
+                    {% attrs readonly %}
             />
             <label for="{{ id }}">{{ label|default:id|title }}</label>
             {% if errors %}
